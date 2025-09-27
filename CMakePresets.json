@@ -1,0 +1,37 @@
+{
+	"version": 3,
+	"cmakeMinimumRequired": {
+		"major": 3,
+		"minor": 20,
+		"patch": 0
+	},
+	"configurePresets": [
+		{
+			"name": "windows-msvc-x64",
+			"displayName": "Windows MSVC x64 (Visual Studio)",
+			"generator": "Visual Studio 17 2022",
+			"architecture": "x64",
+			"binaryDir": "${sourceDir}/build/${presetName}"
+		},
+		{
+			"name": "linux-make-x64",
+			"displayName": "Linux Makefiles x64",
+			"generator": "Unix Makefiles",
+			"architecture": "x86_64",
+			"binaryDir": "${sourceDir}/build/${presetName}",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			}
+		}
+	],
+	"buildPresets": [
+		{
+			"name": "build-windows-msvc-debug",
+			"configurePreset": "windows-msvc-x64"
+		},
+		{
+			"name": "build-linux-make-debug",
+			"configurePreset": "linux-make-x64"
+		}
+	]
+}
