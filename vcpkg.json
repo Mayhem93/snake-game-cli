@@ -1,7 +1,5 @@
 {
 	"name": "snake-cli",
   "version": "0.0.1",
-  "dependencies": [
-    "nlohmann-json"
-  ]
+  "dependencies": []
 }

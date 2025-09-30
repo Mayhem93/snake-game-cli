@@ -78,4 +78,4 @@ target_include_directories(snake PRIVATE "${VCPKG_INSTALLED_DIR}/include")
 target_link_directories(snake PRIVATE "${VCPKG_INSTALLED_DIR}/lib")
 # target_link_libraries(snake PRIVATE some_library_name)
 
-target_include_directories(snake PRIVATE "${CMAKE_SOURCE_DIR}/src/include")
+target_include_directories(snake PRIVATE "${CMAKE_SOURCE_DIR}/src/engine/include")

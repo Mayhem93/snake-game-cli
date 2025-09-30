@@ -1,0 +1,28 @@
+#pragma once
+
+#include <cstdint>
+
+namespace Snake
+{
+	bool initStdinRaw();
+
+	enum class KeyKind : uint8_t
+	{
+		None = 0,
+		Char = 1, // printable ASCII/UTF-8 byte
+		Enter = 2,
+		EscapeKey = 3,
+		ArrowUp = 4,
+		ArrowDown = 5,
+		ArrowLeft = 6,
+		ArrowRight = 7,
+		// add more as needed: Home, End, F1…F12, etc.
+	};
+
+	struct KeyEvent {
+		KeyKind kind;
+		char32_t codepoint;
+	};
+
+	KeyEvent readKey();
+};

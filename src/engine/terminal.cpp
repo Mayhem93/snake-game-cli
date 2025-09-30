@@ -1,0 +1,138 @@
+#include <iostream>
+
+#include <string>
+
+#if defined(_WIN32)
+#include <windows.h>
+#else
+#include <sys/ioctl.h>
+#include <unistd.h>
+#endif
+
+#include "include/terminal.h"
+#include "include/screen.h"
+
+namespace Snake
+{
+	Terminal::Terminal()
+	{
+#if defined(_WIN32)
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+		if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
+		{
+			m_width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+			m_height = csbi.srWindow.Bottom - csbi.srWindow.Top;
+		}
+#else
+		struct winsize w;
+		if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0)
+		{
+			m_width = w.ws_col;
+			m_height = w.ws_row - 1;
+		}
+
+		hideCursor();
+		clearScreen();
+		std::cout << TSEQ::ALTERNATE_SCREEN; // Enter alternate screen buffer
+#endif
+	}
+
+	Terminal::~Terminal()
+	{
+		std::cout << TSEQ::RESET_ATTRS;
+		showCursor();
+		clearScreen();
+		std::cout << TSEQ::EXIT_ALTERNATE_SCREEN; // Exit alternate screen buffer
+		std::cout.flush();
+	}
+
+	int Terminal::width() const noexcept
+	{
+		return m_width;
+	}
+
+	int Terminal::height() const noexcept
+	{
+		return m_height;
+	}
+
+	void Terminal::clearScreen()
+	{
+		std::cout << TSEQ::CLEAR_SCREEN << TSEQ::CURSOR_HOME;
+	}
+
+	void Terminal::hideCursor()
+	{
+		std::cout << TSEQ::HIDE_CURSOR;
+	}
+
+	void Terminal::showCursor()
+	{
+		std::cout << TSEQ::SHOW_CURSOR;
+	}
+
+	std::string Terminal::toUnicode(uint32_t codepoint) noexcept
+	{
+		std::string out;
+
+		if (codepoint < 0x80)
+		{
+			out += static_cast<char>(codepoint);
+		}
+		else if (codepoint < 0x800)
+		{
+			out += static_cast<char>(0xC0 | (codepoint >> 6));
+			out += static_cast<char>(0x80 | (codepoint & 0x3F));
+		}
+		else if (codepoint < 0x10000)
+		{
+			out += static_cast<char>(0xE0 | (codepoint >> 12));
+			out += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+			out += static_cast<char>(0x80 | (codepoint & 0x3F));
+		}
+		else
+		{
+			out += static_cast<char>(0xF0 | (codepoint >> 18));
+			out += static_cast<char>(0x80 | ((codepoint >> 12) & 0x3F));
+			out += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+			out += static_cast<char>(0x80 | (codepoint & 0x3F));
+		}
+
+		return out;
+	}
+
+	void Terminal::render(ScreenBuffer const& buf)
+	{
+		std::cout << TSEQ::CURSOR_HOME;
+
+		for (int y = 0; y < m_height; ++y)
+		{
+			for (int x = 0; x < m_width; ++x)
+			{
+				const Cell& cell = buf.get(x, y);
+
+				if (cell.default_fg) {
+				    std::cout << TSEQ::DEFAULT_FOREGROUND; // default foreground
+				} else {
+				    std::cout << TSEQ::FG_COLOR_256 << static_cast<int>(cell.fg) << "m";
+				}
+
+				if (cell.default_bg) {
+				    std::cout << TSEQ::DEFAULT_BACKGROUND; // default background
+				} else {
+				    std::cout << TSEQ::BG_COLOR_256 << static_cast<int>(cell.bg) << "m";
+				}
+
+				std::cout << toUnicode(cell.codepoint);
+			}
+
+			if (y < m_height - 1)
+				std::cout << '\n';
+		}
+
+		// Reset attributes at end of line
+		std::cout << TSEQ::RESET_ATTRS;
+
+		std::cout.flush();
+	}
+}

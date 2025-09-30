@@ -17,7 +17,6 @@
 			"name": "linux-make-x64",
 			"displayName": "Linux Makefiles x64",
 			"generator": "Unix Makefiles",
-			"architecture": "x86_64",
 			"binaryDir": "${sourceDir}/build/${presetName}",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Debug"
