@@ -9,7 +9,7 @@ namespace Snake
 	{
 		bool initStdinRaw();
 		void restoreTerminal();
-		void gSignalHandler(int signal);
+		void signalHandler(int signal);
 
 		extern std::atomic<bool> g_exitRequested;
 

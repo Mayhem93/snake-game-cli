@@ -140,7 +140,7 @@ namespace Snake
 #endif
 		}
 
-		void gSignalHandler(int signal)
+		void signalHandler(int signal)
 		{
 			if (signal == SIGINT)
 			{

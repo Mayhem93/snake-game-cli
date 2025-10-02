@@ -33,7 +33,7 @@ namespace Snake
 			exit(1);
 		}
 
-		std::signal(SIGINT, Input::gSignalHandler);
+		std::signal(SIGINT, Input::signalHandler);
 
 		while (!Input::g_exitRequested)
 		{
