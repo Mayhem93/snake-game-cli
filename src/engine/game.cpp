@@ -58,7 +58,6 @@ namespace Snake
 
 	void Game::update()
 	{
-		m_buffer.clear();
-		m_buffer.addObject(m_border.get());
+
 	}
 };
