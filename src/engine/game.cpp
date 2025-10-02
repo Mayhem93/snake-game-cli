@@ -7,13 +7,13 @@
 
 #include <thread>
 #include <chrono>
+#include <csignal>
 
 namespace Snake
 {
-	Game::Game()
+	Game::Game() :
+		m_terminal()
 	{
-		m_terminal = Terminal();
-
 		m_width = m_terminal.width();
 		m_height = m_terminal.height();
 		m_buffer = ScreenBuffer(m_width, m_height);
@@ -27,19 +27,21 @@ namespace Snake
 
 	void Game::run()
 	{
-		if (!initStdinRaw())
+		if (!Input::initStdinRaw())
 		{
 			std::cerr << "Failed to initialize stdin in raw mode" << std::endl;
 			exit(1);
 		}
 
-		while (true)
+		std::signal(SIGINT, Input::gSignalHandler);
+
+		while (!Input::g_exitRequested)
 		{
 			auto currentTime = std::chrono::steady_clock::now();
 			auto deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - m_lastFrameTime).count();
-			auto key = Snake::readKey();
+			auto key = Input::readKey();
 
-			if (key.kind == Snake::KeyKind::Enter)
+			if (key.kind == Input::KeyKind::Enter)
 				break;
 
 			if (deltaTime >= FRAME_TIME_MS)

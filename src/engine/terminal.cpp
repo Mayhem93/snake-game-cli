@@ -11,6 +11,7 @@
 
 #include "include/terminal.h"
 #include "include/screen.h"
+#include "include/input.h"
 
 namespace Snake
 {
@@ -43,21 +44,23 @@ namespace Snake
 			m_height = w.ws_row - 1;
 		}
 #endif
+		std::cout << TSEQ::ALTERNATE_SCREEN; // Enter alternate screen buffer
+		std::cout.flush();
 		clearScreen();
 		hideCursor();
-		std::cout << TSEQ::ALTERNATE_SCREEN; // Enter alternate screen buffer
 	}
 
 	Terminal::~Terminal()
 	{
 		showCursor();
 		std::cout << TSEQ::RESET_ATTRS;
+		std::cout << TSEQ::EXIT_ALTERNATE_SCREEN; // Exit alternate screen buffer
 #ifdef _WIN32
 		SetConsoleMode(m_hStdin, m_originalInputMode);
 		SetConsoleMode(m_hStdout, m_originalOutputMode);
 #else
 		clearScreen();
-		std::cout << TSEQ::EXIT_ALTERNATE_SCREEN; // Exit alternate screen buffer
+		Input::restoreTerminal();
 		std::cout.flush();
 #endif
 	}
