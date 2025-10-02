@@ -31,19 +31,24 @@ namespace Snake
 			m_height = w.ws_row - 1;
 		}
 
-		hideCursor();
 		clearScreen();
+		hideCursor();
 		std::cout << TSEQ::ALTERNATE_SCREEN; // Enter alternate screen buffer
 #endif
 	}
 
 	Terminal::~Terminal()
 	{
-		std::cout << TSEQ::RESET_ATTRS;
 		showCursor();
+		std::cout << TSEQ::RESET_ATTRS;
+#ifdef _WIN32
+		SetConsoleMode(hStdin, originalInputMode);
+		SetConsoleMode(hStdout, originalOutputMode);
+#else
 		clearScreen();
 		std::cout << TSEQ::EXIT_ALTERNATE_SCREEN; // Exit alternate screen buffer
 		std::cout.flush();
+#endif
 	}
 
 	int Terminal::width() const noexcept
@@ -69,6 +74,11 @@ namespace Snake
 	void Terminal::showCursor()
 	{
 		std::cout << TSEQ::SHOW_CURSOR;
+	}
+
+	void Terminal::moveCursor(int row, int col)
+	{
+		std::cout << "\033[" << (row + 1) << ";" << (col + 1) << "H";
 	}
 
 	std::string Terminal::toUnicode(uint32_t codepoint) noexcept
@@ -103,8 +113,6 @@ namespace Snake
 
 	void Terminal::render(ScreenBuffer const& buf)
 	{
-		std::cout << TSEQ::CURSOR_HOME;
-
 		for (int y = 0; y < m_height; ++y)
 		{
 			for (int x = 0; x < m_width; ++x)
@@ -125,13 +133,7 @@ namespace Snake
 
 				std::cout << toUnicode(cell.codepoint);
 			}
-
-			if (y < m_height - 1)
-				std::cout << '\n';
 		}
-
-		// Reset attributes at end of line
-		std::cout << TSEQ::RESET_ATTRS;
 
 		std::cout.flush();
 	}
