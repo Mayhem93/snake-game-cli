@@ -2,6 +2,10 @@
 
 #include <string>
 
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+
 #include "screen.h"
 
 namespace Snake
@@ -23,13 +27,20 @@ namespace Snake
 			int m_width = 0;
 			int m_height = 0;
 			static std::string toUnicode(uint32_t codepoint) noexcept;
+
+#ifdef _WIN32
+			HANDLE m_hStdin;
+			HANDLE m_hStdout;
+			DWORD m_originalInputMode;
+			DWORD m_originalOutputMode;
+#endif
 	};
 
 	namespace TSEQ
 	{
 		constexpr const char* ESC = "\x1b";
 		constexpr const char* ALTERNATE_SCREEN = "\x1b[?1049h";
-		constexpr const char *EXIT_ALTERNATE_SCREEN = "\x1b[?1049l";
+		constexpr const char* EXIT_ALTERNATE_SCREEN = "\x1b[?1049l";
 		constexpr const char* CLEAR_SCREEN = "\x1b[2J";
 		constexpr const char* CURSOR_HOME = "\x1b[H";
 		constexpr const char* HIDE_CURSOR = "\x1b[?25l";

@@ -36,9 +36,9 @@ namespace Snake
 			void set(int x, int y, Cell c) noexcept;
 			const Cell& get(int x, int y) const noexcept;
 
-			Cell& atIndex(int idx) const noexcept;
+			// Cell& atIndex(int idx) const noexcept;
 
-			void addObject(const BaseObject& obj);
+			void addObject(const BaseObject* obj);
 
 		private:
 			int m_width = 0;

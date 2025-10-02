@@ -13,13 +13,11 @@ namespace Snake
 
 	class BaseObject {
 		public:
-			BaseObject(int width, int height);
+			BaseObject();
 			virtual ~BaseObject() = default;
 			virtual const std::vector<PositionedCell>& cells() const = 0;
 
 		protected:
-			int m_width;
-			int m_height;
 			std::vector<PositionedCell> m_cells;
 	};
 

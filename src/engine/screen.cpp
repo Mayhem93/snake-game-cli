@@ -50,8 +50,8 @@ namespace Snake
 		return m_buffer[index(x, y)];
 	}
 
-	void ScreenBuffer::addObject(const BaseObject& obj) {
-	    for (const auto& cwp : obj.cells()) {
+	void ScreenBuffer::addObject(const BaseObject* obj) {
+	    for (const auto& cwp : obj->cells()) {
 	        set(cwp.x, cwp.y, cwp.cell);
 	    }
 	}

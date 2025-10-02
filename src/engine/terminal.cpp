@@ -17,8 +17,20 @@ namespace Snake
 	Terminal::Terminal()
 	{
 #if defined(_WIN32)
+		m_hStdin = GetStdHandle(STD_INPUT_HANDLE);
+		m_hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		// Save original console modes
+		GetConsoleMode(m_hStdin, &m_originalInputMode);
+		GetConsoleMode(m_hStdout, &m_originalOutputMode);
+
+		// Set up console for raw input and proper output
+		SetConsoleMode(m_hStdin, ENABLE_VIRTUAL_TERMINAL_INPUT);
+		SetConsoleMode(m_hStdout, ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+
+		// Get terminal size
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
+		if (GetConsoleScreenBufferInfo(m_hStdout, &csbi))
 		{
 			m_width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
 			m_height = csbi.srWindow.Bottom - csbi.srWindow.Top;
@@ -30,11 +42,10 @@ namespace Snake
 			m_width = w.ws_col;
 			m_height = w.ws_row - 1;
 		}
-
+#endif
 		clearScreen();
 		hideCursor();
 		std::cout << TSEQ::ALTERNATE_SCREEN; // Enter alternate screen buffer
-#endif
 	}
 
 	Terminal::~Terminal()
@@ -42,8 +53,8 @@ namespace Snake
 		showCursor();
 		std::cout << TSEQ::RESET_ATTRS;
 #ifdef _WIN32
-		SetConsoleMode(hStdin, originalInputMode);
-		SetConsoleMode(hStdout, originalOutputMode);
+		SetConsoleMode(m_hStdin, m_originalInputMode);
+		SetConsoleMode(m_hStdout, m_originalOutputMode);
 #else
 		clearScreen();
 		std::cout << TSEQ::EXIT_ALTERNATE_SCREEN; // Exit alternate screen buffer
@@ -115,6 +126,8 @@ namespace Snake
 	{
 		for (int y = 0; y < m_height; ++y)
 		{
+			moveCursor(y, 0);
+
 			for (int x = 0; x < m_width; ++x)
 			{
 				const Cell& cell = buf.get(x, y);
@@ -135,6 +148,7 @@ namespace Snake
 			}
 		}
 
+		hideCursor();
 		std::cout.flush();
 	}
 }

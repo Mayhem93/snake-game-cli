@@ -1,8 +1,12 @@
 #pragma once
 
+#include <chrono>
+#include <memory>
+
 #include "input.h"
 #include "screen.h"
 #include "terminal.h"
+#include "objects.h"
 
 namespace Snake
 {
@@ -12,9 +16,6 @@ namespace Snake
 			Game();
 			~Game();
 
-			int width() const noexcept;
-			int height() const noexcept;
-
 			void run();
 
 		private:
@@ -23,6 +24,11 @@ namespace Snake
 			ScreenBuffer m_buffer;
 			Terminal m_terminal;
 
-			void drawBorder();
+			static constexpr int FRAME_TIME_MS = 500;
+			std::chrono::steady_clock::time_point m_lastFrameTime;
+
+			std::unique_ptr<Border> m_border;
+
+			void update();
 	};
 };

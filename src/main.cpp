@@ -5,7 +5,6 @@
 int main ()
 {
 	Snake::Game g = Snake::Game();
-	// Snake::Border border(g.width(), g.height());
 
 	g.run();
 
