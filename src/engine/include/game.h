@@ -24,11 +24,13 @@ namespace Snake
 			ScreenBuffer m_buffer;
 			Terminal m_terminal;
 
-			static constexpr int FRAME_TIME_MS = 500;
+			static constexpr int FRAME_TIME_MS = 1000;
 			std::chrono::steady_clock::time_point m_lastFrameTime;
 
 			std::unique_ptr<Border> m_border;
+			std::unique_ptr<Snake> m_snake;
 
-			void update();
+			void initLogger();
+			void update(Input::KeyKind input);
 	};
 };

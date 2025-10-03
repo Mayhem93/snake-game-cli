@@ -1,6 +1,7 @@
 #include "include/input.h"
 
 #include <csignal>
+#include <unordered_map>
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -17,6 +18,12 @@ namespace Snake
 	namespace Input
 	{
 		std::atomic<bool> g_exitRequested{false};
+		static const std::unordered_map<int, KeyKind> g_keyMap = {
+			{'A', KeyKind::ArrowUp},
+			{'B', KeyKind::ArrowDown},
+			{'C', KeyKind::ArrowRight},
+			{'D', KeyKind::ArrowLeft}
+		};
 
 #ifndef _WIN32
 		static termios g_originalTermios;
@@ -115,28 +122,23 @@ namespace Snake
 				// try reading “[?” and arrow code
 				if (::read(STDIN_FILENO, buf + 1, 2) == 2 && buf[1] == '[')
 				{
-					switch (buf[2])
+					auto it = g_keyMap.find(buf[2]);
+
+					if (it != g_keyMap.end())
 					{
-					case 'A':
-						return {KeyKind::ArrowUp, 0};
-					case 'B':
-						return {KeyKind::ArrowDown, 0};
-					case 'C':
-						return {KeyKind::ArrowRight, 0};
-					case 'D':
-						return {KeyKind::ArrowLeft, 0};
+						return { it->second, 0 };
 					}
 				}
 
 				// standalone ESC
-				return {KeyKind::EscapeKey, 0};
+				return { KeyKind::EscapeKey, 0 };
 			}
 
 			if (buf[0] == '\r' || buf[0] == '\n')
-				return {KeyKind::Enter, 0};
+				return { KeyKind::Enter, 0 };
 
 			// any other byte becomes a Char
-			return KeyEvent{KeyKind::Char, static_cast<char32_t>(buf[0])};
+			return KeyEvent{ KeyKind::Char, static_cast<char32_t>(buf[0]) };
 #endif
 		}
 

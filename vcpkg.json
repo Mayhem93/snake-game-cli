@@ -1,5 +1,7 @@
 {
-	"name": "snake-cli",
+  "name": "snake-cli",
   "version": "0.0.1",
-  "dependencies": []
+  "dependencies": [
+    "boost-log"
+  ]
 }

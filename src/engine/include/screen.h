@@ -22,6 +22,13 @@ namespace Snake
 		constexpr bool operator!=(Cell const& o) const noexcept;
 	};
 
+	struct PositionedCell
+	{
+		unsigned int x;
+		unsigned int y;
+		Cell cell;
+	};
+
 	class ScreenBuffer
 	{
 		public:
