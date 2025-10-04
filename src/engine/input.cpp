@@ -121,6 +121,7 @@ namespace Snake
 			{
 				// Try to read the '[' character
 				ssize_t n1 = ::read(STDIN_FILENO, buf + 1, 1);
+
 				if (n1 != 1 || buf[1] != '[')
 				{
 					// Either couldn't read or not an arrow sequence
@@ -129,6 +130,7 @@ namespace Snake
 
 				// Try to read the arrow key code
 				ssize_t n2 = ::read(STDIN_FILENO, buf + 2, 1);
+
 				if (n2 != 1)
 				{
 					// Couldn't read the arrow code - incomplete sequence
@@ -137,6 +139,7 @@ namespace Snake
 
 				// Now we have the complete sequence, look up the key
 				auto it = g_keyMap.find(buf[2]);
+
 				if (it != g_keyMap.end())
 				{
 					return { it->second, 0 };

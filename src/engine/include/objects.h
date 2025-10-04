@@ -7,17 +7,26 @@ namespace Snake
 {
 	class BaseObject {
 		public:
+			enum class CollisionType
+			{
+				None,	// No collision (decorative objects)
+				Solid,	// Blocks movement, causes game over
+				Trigger // Causes events but doesn't block movement
+			};
+
 			BaseObject();
 			virtual ~BaseObject() = default;
+
 			const std::vector<std::unique_ptr<PositionedCell>>& cells() const;
-			bool isCollisionEnabled() const;
+			CollisionType getCollisionType() const;
+			virtual void onCollision(BaseObject* other) {};
 			void addPCell(PCellPtr& pCell);
 			static CellPtr s_MakeCell(const Cell& cell);
 			static PCellPtr s_MakePCell(unsigned int x, unsigned int y, CellPtr cell);
 
 		protected:
 			std::vector<std::unique_ptr<PositionedCell>> m_cells;
-			bool m_collisionEnabled = true;
+			CollisionType m_collisionType = CollisionType::None;
 	};
 
 	class Border : public BaseObject
@@ -40,6 +49,7 @@ namespace Snake
 			};
 
 			void setDirection(Direction direction);
+			std::pair<unsigned int, unsigned int> getHeadPosition() const;
 			void move();
 			void up();
 			void down();

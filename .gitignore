@@ -3,4 +3,4 @@
 build
 CMakeFiles
 vcpkg_installed
-logs
+logs/**

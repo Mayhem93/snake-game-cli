@@ -28,8 +28,6 @@ namespace Snake
 		m_border = std::make_unique<Border>(m_width, m_height);
 		m_snake = std::make_unique<Snake>(m_width / 2, m_height / 2);
 
-		m_snake->logCells();
-
 		m_buffer.addObject(m_border.get());
 		m_buffer.addObject(m_snake.get());
 	}
@@ -44,7 +42,7 @@ namespace Snake
 			exit(1);
 		}
 
-		std::signal(SIGINT, Input::signalHandler);
+		std::signal(SIGINT, Input::signalHandler); // it's not a real cli program if we don't handle SIGINT
 
 		while (!Input::g_exitRequested)
 		{
@@ -97,7 +95,7 @@ namespace Snake
 				break;
 		}
 
-		m_snake->move();
+		m_snake->move(); // keep snake continuously moving with current direction
 		// m_snake->logCells();
 		// m_buffer.dumpBuffer();
 	}

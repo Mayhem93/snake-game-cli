@@ -15,9 +15,9 @@ namespace Snake
 		return m_cells;
 	}
 
-	bool BaseObject::isCollisionEnabled() const
+	BaseObject::CollisionType BaseObject::getCollisionType() const
 	{
-		return m_collisionEnabled;
+		return m_collisionType;
 	}
 
 	void BaseObject::addPCell(PCellPtr& pCell)
@@ -35,11 +35,10 @@ namespace Snake
 	    return std::make_unique<PositionedCell>(PositionedCell{ x, y, cell });
 	}
 
-	Border::Border(unsigned int width, unsigned int height)
-		: BaseObject()
+	Border::Border(unsigned int width, unsigned int height) :
+		BaseObject()
 	{
-		m_collisionEnabled = true;
-
+		m_collisionType = CollisionType::Solid;
 		// Top and bottom rows
 		for (unsigned int x = 1; x < width - 1; ++x)
 		{
@@ -75,7 +74,7 @@ namespace Snake
 	Snake::Snake(unsigned int startX, unsigned int startY)
 		: BaseObject()
 	{
-		m_collisionEnabled = true;
+		m_collisionType = CollisionType::Solid;
 
 		auto pHeadCell = s_MakePCell(startX, startY, s_MakeCell(Cell{ .codepoint = TGLYPHS::SNAKE_HEAD_LEFT }));
 		addPCell(pHeadCell);
@@ -103,6 +102,16 @@ namespace Snake
 		m_currentDirection = direction;
 	}
 
+	std::pair<unsigned int, unsigned int> Snake::getHeadPosition() const
+	{
+		if (!m_cells.empty())
+		{
+			return { m_cells[0]->x, m_cells[0]->y };
+		}
+
+		return {0, 0}; // Fallback (shouldn't happen)
+	}
+
 	void Snake::move()
 	{
 		if (m_cells.empty())
@@ -115,41 +124,32 @@ namespace Snake
 			m_cells[i]->y = m_cells[i - 1]->y;
 		}
 
-		// Step 2: Move the head based on current direction
+		// Step 2: Update head glyph based on direction and move head position
 		switch (m_currentDirection)
 		{
-		case Direction::Up:
-			m_cells[0]->y--;
-			break;
-		case Direction::Down:
-			m_cells[0]->y++;
-			break;
-		case Direction::Left:
-			m_cells[0]->x--;
-			break;
-		case Direction::Right:
-			m_cells[0]->x++;
-			break;
+			case Direction::Up:
+				m_cells[0]->y--;
+				m_cells[0]->cell->codepoint = TGLYPHS::SNAKE_HEAD_UP;
+
+				break;
+			case Direction::Down:
+				m_cells[0]->y++;
+				m_cells[0]->cell->codepoint = TGLYPHS::SNAKE_HEAD_DOWN;
+
+				break;
+			case Direction::Left:
+				m_cells[0]->x--;
+				m_cells[0]->cell->codepoint = TGLYPHS::SNAKE_HEAD_LEFT;
+
+				break;
+			case Direction::Right:
+				m_cells[0]->x++;
+				m_cells[0]->cell->codepoint = TGLYPHS::SNAKE_HEAD_RIGHT;
+
+				break;
 		}
 
-		// Step 3: Update head glyph based on direction
-		switch (m_currentDirection)
-		{
-		case Direction::Up:
-			m_cells[0]->cell->codepoint = TGLYPHS::SNAKE_HEAD_UP;
-			break;
-		case Direction::Down:
-			m_cells[0]->cell->codepoint = TGLYPHS::SNAKE_HEAD_DOWN;
-			break;
-		case Direction::Left:
-			m_cells[0]->cell->codepoint = TGLYPHS::SNAKE_HEAD_LEFT;
-			break;
-		case Direction::Right:
-			m_cells[0]->cell->codepoint = TGLYPHS::SNAKE_HEAD_RIGHT;
-			break;
-		}
-
-		// Step 4: Update tail glyph based on direction (direction from second-to-last to last segment)
+		// Step 3: Update tail glyph based on direction (direction from second-to-last to last segment)
 		if (m_cells.size() > 1)
 		{
 			int tailIndex = m_cells.size() - 1;
