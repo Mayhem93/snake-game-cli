@@ -105,8 +105,6 @@ namespace Snake
 
 	void Snake::move()
 	{
-		BOOST_LOG_TRIVIAL(info) << "Snake move called";
-
 		if (m_cells.empty())
 			return;
 
@@ -169,6 +167,26 @@ namespace Snake
 			else if (dy < 0) // Tail is above previous segment
 				m_cells[tailIndex]->cell->codepoint = TGLYPHS::SNAKE_TAIL_UP;
 		}
+	}
+
+	void Snake::up()
+	{
+		setDirection(Direction::Up);
+	}
+
+	void Snake::down()
+	{
+		setDirection(Direction::Down);
+	}
+
+	void Snake::left()
+	{
+		setDirection(Direction::Left);
+	}
+
+	void Snake::right()
+	{
+		setDirection(Direction::Right);
 	}
 
 	void Snake::logCells() const

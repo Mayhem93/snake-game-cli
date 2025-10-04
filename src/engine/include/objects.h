@@ -41,6 +41,10 @@ namespace Snake
 
 			void setDirection(Direction direction);
 			void move();
+			void up();
+			void down();
+			void left();
+			void right();
 			void grow();
 			void logCells() const;
 

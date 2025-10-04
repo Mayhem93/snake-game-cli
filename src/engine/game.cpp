@@ -52,26 +52,53 @@ namespace Snake
 			auto deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - m_lastFrameTime).count();
 			Input::KeyEvent key = Input::readKey();
 
-			if (key.kind == Input::KeyKind::Enter)
+			if (key.kind == Input::KeyKind::Enter) // alternative exit
 				break;
+
+			if (key.kind != Input::KeyKind::None)
+			{
+				m_pendingInput = key.kind;
+			}
 
 			if (deltaTime >= FRAME_TIME_MS)
 			{
-				update(key.kind);
+				update(m_pendingInput);
+				m_pendingInput = Input::KeyKind::None;
 				m_buffer.updateObjects();
 				m_terminal.render(m_buffer);
 				m_lastFrameTime = currentTime;
 			}
 
 			// Optionally, sleep for a short time to avoid busy-waiting
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			std::this_thread::sleep_for(std::chrono::milliseconds(5));
 		}
 	}
 
 	void Game::update(Input::KeyKind input)
 	{
+		BOOST_LOG_TRIVIAL(info) << "Game update with input: " << static_cast<int>(input);
+
+		switch (input)
+		{
+			case Input::KeyKind::ArrowUp:
+				m_snake->up();
+				break;
+			case Input::KeyKind::ArrowDown:
+				m_snake->down();
+				break;
+			case Input::KeyKind::ArrowLeft:
+				m_snake->left();
+				break;
+			case Input::KeyKind::ArrowRight:
+				m_snake->right();
+				break;
+			default:
+				// No action for other keys
+				break;
+		}
+
 		m_snake->move();
-		m_snake->logCells();
+		// m_snake->logCells();
 		// m_buffer.dumpBuffer();
 	}
 

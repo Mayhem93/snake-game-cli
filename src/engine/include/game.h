@@ -21,6 +21,7 @@ namespace Snake
 		private:
 			int m_width;
 			int m_height;
+			Input::KeyKind m_pendingInput = Input::KeyKind::None; // Store latest key
 			ScreenBuffer m_buffer;
 			Terminal m_terminal;
 

@@ -119,18 +119,30 @@ namespace Snake
 			// ESC sequence?
 			if (buf[0] == 0x1B)
 			{
-				// try reading “[?” and arrow code
-				if (::read(STDIN_FILENO, buf + 1, 2) == 2 && buf[1] == '[')
+				// Try to read the '[' character
+				ssize_t n1 = ::read(STDIN_FILENO, buf + 1, 1);
+				if (n1 != 1 || buf[1] != '[')
 				{
-					auto it = g_keyMap.find(buf[2]);
-
-					if (it != g_keyMap.end())
-					{
-						return { it->second, 0 };
-					}
+					// Either couldn't read or not an arrow sequence
+					return { KeyKind::EscapeKey, 0 };
 				}
 
-				// standalone ESC
+				// Try to read the arrow key code
+				ssize_t n2 = ::read(STDIN_FILENO, buf + 2, 1);
+				if (n2 != 1)
+				{
+					// Couldn't read the arrow code - incomplete sequence
+					return ev; // Return None and try again next time
+				}
+
+				// Now we have the complete sequence, look up the key
+				auto it = g_keyMap.find(buf[2]);
+				if (it != g_keyMap.end())
+				{
+					return { it->second, 0 };
+				}
+
+				// Unknown escape sequence
 				return { KeyKind::EscapeKey, 0 };
 			}
 
