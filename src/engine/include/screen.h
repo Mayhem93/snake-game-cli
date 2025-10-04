@@ -1,8 +1,8 @@
 #pragma once
 
 #include<cstdint>
-#include<string_view>
 #include<vector>
+#include<memory>
 
 #include "glyphs.h"
 
@@ -22,12 +22,16 @@ namespace Snake
 		constexpr bool operator!=(Cell const& o) const noexcept;
 	};
 
+	using CellPtr = std::shared_ptr<Cell>;
+
 	struct PositionedCell
 	{
 		unsigned int x;
 		unsigned int y;
-		Cell cell;
+		CellPtr cell;
 	};
+
+	using PCellPtr = std::unique_ptr<PositionedCell>;
 
 	class ScreenBuffer
 	{
@@ -40,17 +44,19 @@ namespace Snake
 
 			void clear();
 
-			void set(int x, int y, Cell c) noexcept;
-			const Cell& get(int x, int y) const noexcept;
+			void set(int x, int y, const CellPtr& c) noexcept;
+			CellPtr get(int x, int y) const noexcept;
 
-			// Cell& atIndex(int idx) const noexcept;
-
-			void addObject(const BaseObject* obj);
+			void addObject(BaseObject* obj);
+			void updateObjects();
+			void dumpBuffer() const;
 
 		private:
+			CellPtr m_emptyCell;
 			int m_width = 0;
 			int m_height = 0;
-			std::vector<Cell> m_buffer;
+			std::vector<CellPtr> m_buffer;
+			std::vector<BaseObject*> m_objects;
 
 			inline int index(int x, int y) const noexcept;
 	};

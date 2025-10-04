@@ -28,6 +28,8 @@ namespace Snake
 		m_border = std::make_unique<Border>(m_width, m_height);
 		m_snake = std::make_unique<Snake>(m_width / 2, m_height / 2);
 
+		m_snake->logCells();
+
 		m_buffer.addObject(m_border.get());
 		m_buffer.addObject(m_snake.get());
 	}
@@ -56,6 +58,7 @@ namespace Snake
 			if (deltaTime >= FRAME_TIME_MS)
 			{
 				update(key.kind);
+				m_buffer.updateObjects();
 				m_terminal.render(m_buffer);
 				m_lastFrameTime = currentTime;
 			}
@@ -68,6 +71,8 @@ namespace Snake
 	void Game::update(Input::KeyKind input)
 	{
 		m_snake->move();
+		m_snake->logCells();
+		// m_buffer.dumpBuffer();
 	}
 
 	void Game::initLogger()

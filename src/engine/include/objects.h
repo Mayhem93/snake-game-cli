@@ -9,11 +9,14 @@ namespace Snake
 		public:
 			BaseObject();
 			virtual ~BaseObject() = default;
-			const std::vector<PositionedCell>& cells() const;
+			const std::vector<std::unique_ptr<PositionedCell>>& cells() const;
 			bool isCollisionEnabled() const;
+			void addPCell(PCellPtr& pCell);
+			static CellPtr s_MakeCell(const Cell& cell);
+			static PCellPtr s_MakePCell(unsigned int x, unsigned int y, CellPtr cell);
 
 		protected:
-			std::vector<PositionedCell> m_cells;
+			std::vector<std::unique_ptr<PositionedCell>> m_cells;
 			bool m_collisionEnabled = true;
 	};
 
@@ -21,8 +24,6 @@ namespace Snake
 	{
 		public:
 			Border(unsigned int width, unsigned int height);
-
-			const std::vector<PositionedCell>& cells() const;
 	};
 
 	class Snake : public BaseObject
@@ -41,6 +42,7 @@ namespace Snake
 			void setDirection(Direction direction);
 			void move();
 			void grow();
+			void logCells() const;
 
 		private:
 			unsigned int m_length = 5;

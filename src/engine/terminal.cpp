@@ -133,7 +133,8 @@ namespace Snake
 
 			for (int x = 0; x < m_width; ++x)
 			{
-				const Cell& cell = buf.get(x, y);
+				CellPtr cellPtr = buf.get(x, y);
+				const Cell &cell = *cellPtr;
 
 				if (cell.default_fg) {
 				    std::cout << TSEQ::DEFAULT_FOREGROUND; // default foreground
