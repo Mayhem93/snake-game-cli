@@ -67,6 +67,19 @@ namespace Snake
 	    }
 	}
 
+	void ScreenBuffer::removeObject(BaseObject* obj) {
+		auto it = std::find(m_objects.begin(), m_objects.end(), obj);
+
+		if (it != m_objects.end()) {
+			m_objects.erase(it);
+		}
+
+		// add empty cells where the object was
+	    for (const auto& cwp : obj->cells()) {
+	        set(cwp->x, cwp->y, m_emptyCell);
+	    }
+	}
+
 	void ScreenBuffer::updateObjects() {
 		for (int i = 0; i < m_buffer.size(); ++i)
 		{
@@ -87,7 +100,17 @@ namespace Snake
 		}
 	}
 
-	std::string toUnicode(uint32_t codepoint) noexcept
+	bool ScreenBuffer::isPositionEmpty(unsigned int x, unsigned int y) const
+	{
+		if (x < 0 || y < 0 || x >= m_width || y >= m_height)
+		{
+			return false;
+		}
+
+		return get(x, y) == m_emptyCell;
+	}
+
+	std::string ScreenBuffer::s_ToUnicode(uint32_t codepoint) noexcept
 	{
 		std::string out;
 
@@ -122,7 +145,7 @@ namespace Snake
 		std::string dump;
 		for (int y = 0; y < m_height; ++y) {
 			for (int x = 0; x < m_width; ++x) {
-				dump += toUnicode(get(x, y)->codepoint);
+				dump += s_ToUnicode(get(x, y)->codepoint);
 			}
 			dump += '\n';
 		}

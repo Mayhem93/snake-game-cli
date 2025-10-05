@@ -15,9 +15,14 @@ namespace Snake
 		return m_cells;
 	}
 
-	BaseObject::CollisionType BaseObject::getCollisionType() const
+	CollisionType BaseObject::getCollisionType() const
 	{
 		return m_collisionType;
+	}
+
+	CollisionResult BaseObject::getCollisionResult(const BaseObject *other) const
+	{
+		return CollisionResult::NONE;
 	}
 
 	void BaseObject::addPCell(PCellPtr& pCell)
@@ -39,6 +44,7 @@ namespace Snake
 		BaseObject()
 	{
 		m_collisionType = CollisionType::Solid;
+
 		// Top and bottom rows
 		for (unsigned int x = 1; x < width - 1; ++x)
 		{
@@ -48,6 +54,7 @@ namespace Snake
 			auto pBottomCell = s_MakePCell(x, height - 1, s_MakeCell(Cell{ .codepoint = TGLYPHS::HORIZ_DOUBLE_LINE }));
 			addPCell(pBottomCell);
 		}
+
 		// Left and right columns
 		for (unsigned int y = 1; y < height - 1; ++y)
 		{
@@ -57,6 +64,7 @@ namespace Snake
 			auto pRightCell = s_MakePCell(width - 1, y, s_MakeCell(Cell{ .codepoint = TGLYPHS::VERT_DOUBLE_LINE }));
 			addPCell(pRightCell);
 		}
+
 		// Corners
 		auto pTopLeftCell = s_MakePCell(0, 0, s_MakeCell(Cell{ .codepoint = TGLYPHS::TOP_LEFT_DOUBLE_CORNER }));
 		addPCell(pTopLeftCell);
@@ -69,6 +77,16 @@ namespace Snake
 
 		auto pBottomRightCell = s_MakePCell(width - 1, height - 1, s_MakeCell(Cell{ .codepoint = TGLYPHS::BOTTOM_RIGHT_DOUBLE_CORNER }));
 		addPCell(pBottomRightCell);
+	}
+
+	CollisionResult Border::getCollisionResult(const BaseObject *other) const
+	{
+		if (other->getCollisionType() == CollisionType::Solid)
+		{
+			return CollisionResult::WALL;
+		}
+
+		return CollisionResult::NONE;
 	}
 
 	Snake::Snake(unsigned int startX, unsigned int startY)
@@ -194,5 +212,14 @@ namespace Snake
 		for (const auto& cell : m_cells) {
 			BOOST_LOG_TRIVIAL(info) << "Cell at (" << cell->x << ", " << cell->y << ")";
 		}
+	}
+
+	Food::Food(unsigned int x, unsigned int y)
+		: BaseObject()
+	{
+		m_collisionType = CollisionType::Trigger;
+
+		auto pFoodCell = s_MakePCell(x, y, s_MakeCell(Cell{ .codepoint = TGLYPHS::FOOD }));
+		addPCell(pFoodCell);
 	}
 };

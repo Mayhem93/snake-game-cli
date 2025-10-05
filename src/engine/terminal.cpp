@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include <string>
 
 #if defined(_WIN32)
@@ -40,6 +39,7 @@ namespace Snake
 		struct winsize w;
 		if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0)
 		{
+			//TODO: throw if terminal is too small
 			m_width = w.ws_col;
 			m_height = w.ws_row - 1;
 		}

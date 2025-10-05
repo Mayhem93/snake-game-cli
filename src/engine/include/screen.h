@@ -48,7 +48,9 @@ namespace Snake
 			CellPtr get(int x, int y) const noexcept;
 
 			void addObject(BaseObject* obj);
+			void removeObject(BaseObject* obj);
 			void updateObjects();
+			bool isPositionEmpty(unsigned int x, unsigned int y) const;
 			void dumpBuffer() const;
 
 		private:
@@ -57,6 +59,7 @@ namespace Snake
 			int m_height = 0;
 			std::vector<CellPtr> m_buffer;
 			std::vector<BaseObject*> m_objects;
+			static std::string s_ToUnicode(uint32_t codepoint) noexcept;
 
 			inline int index(int x, int y) const noexcept;
 	};

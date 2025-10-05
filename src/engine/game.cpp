@@ -1,4 +1,9 @@
 #include <iostream>
+#include <thread>
+#include <chrono>
+#include <csignal>
+#include <fstream>
+#include <filesystem>
 
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/setup/from_stream.hpp>
@@ -9,24 +14,18 @@
 #include "include/input.h"
 #include "include/objects.h"
 
-#include <thread>
-#include <chrono>
-#include <csignal>
-#include <fstream>
-#include <filesystem>
-
 namespace Snake
 {
-	Game::Game() :
-		m_terminal()
+	Game::Game()
 	{
 		initLogger();
+		m_terminal = Terminal();
 		m_width = m_terminal.width();
 		m_height = m_terminal.height();
 		m_buffer = ScreenBuffer(m_width, m_height);
 
 		m_border = std::make_unique<Border>(m_width, m_height);
-		m_snake = std::make_unique<Snake>(m_width / 2, m_height / 2);
+		m_snake = std::make_unique<Snake>(static_cast<unsigned int>(m_width / 2), static_cast<unsigned int>(m_height / 2));
 
 		m_buffer.addObject(m_border.get());
 		m_buffer.addObject(m_snake.get());
@@ -58,25 +57,41 @@ namespace Snake
 				m_pendingInput = key.kind;
 			}
 
-			if (deltaTime >= FRAME_TIME_MS)
+			if (deltaTime >= s_FrameTimeMs)
 			{
-				update(m_pendingInput);
+				update();
 				m_pendingInput = Input::KeyKind::None;
+
 				m_buffer.updateObjects();
 				m_terminal.render(m_buffer);
+
 				m_lastFrameTime = currentTime;
+				++m_FramesElapsed;
 			}
 
-			// Optionally, sleep for a short time to avoid busy-waiting
+			// avoid busy-waiting
 			std::this_thread::sleep_for(std::chrono::milliseconds(5));
 		}
 	}
 
-	void Game::update(Input::KeyKind input)
+	void Game::update()
 	{
-		BOOST_LOG_TRIVIAL(info) << "Game update with input: " << static_cast<int>(input);
+		BOOST_LOG_TRIVIAL(info) << "Game update with input: " << static_cast<int>(m_pendingInput);
 
-		switch (input)
+		if (m_FramesElapsed != 0 && m_FramesElapsed % s_FoodFreq == 0 && m_food == nullptr)
+		{
+			// Place food at a random empty position
+			unsigned int foodX, foodY;
+			do {
+				foodX = rand() % (m_width - 2) + 1; // avoid border
+				foodY = rand() % (m_height - 2) + 1; // avoid border
+			} while (!m_buffer.isPositionEmpty(foodX, foodY));
+
+			m_food = std::make_unique<Food>(foodX, foodY);
+			m_buffer.addObject(m_food.get());
+		}
+
+		switch (m_pendingInput)
 		{
 			case Input::KeyKind::ArrowUp:
 				m_snake->up();

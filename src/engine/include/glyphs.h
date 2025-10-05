@@ -23,5 +23,7 @@ namespace Snake
 		constexpr uint32_t SNAKE_TAIL_DOWN = 0x25BD; // ▽
 		constexpr uint32_t SNAKE_TAIL_LEFT = 0x25C1; // ◁
 		constexpr uint32_t SNAKE_TAIL_RIGHT = 0x25B7; // ▷
+		// FOOD
+		constexpr uint32_t FOOD = 0x25CE; // ◎
 	};
 };
