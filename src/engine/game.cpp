@@ -61,6 +61,13 @@ namespace Snake
 			{
 				update();
 				m_pendingInput = Input::KeyKind::None;
+				// At the moment we're hardcoding this vector of objects to check for collisions
+				// In future we might want to maintain a list of all active objects in the Game
+				std::vector<BaseObject*> testVector;
+				testVector.push_back(m_snake.get());
+				testVector.push_back(m_border.get());
+
+				ObjectPairs testPairs = s_GenerateUniquePairs(testVector);
 
 				m_buffer.updateObjects();
 				m_terminal.render(m_buffer);
@@ -80,15 +87,7 @@ namespace Snake
 
 		if (m_FramesElapsed != 0 && m_FramesElapsed % s_FoodFreq == 0 && m_food == nullptr)
 		{
-			// Place food at a random empty position
-			unsigned int foodX, foodY;
-			do {
-				foodX = rand() % (m_width - 2) + 1; // avoid border
-				foodY = rand() % (m_height - 2) + 1; // avoid border
-			} while (!m_buffer.isPositionEmpty(foodX, foodY));
-
-			m_food = std::make_unique<Food>(foodX, foodY);
-			m_buffer.addObject(m_food.get());
+			insertFood();
 		}
 
 		switch (m_pendingInput)
@@ -113,6 +112,35 @@ namespace Snake
 		m_snake->move(); // keep snake continuously moving with current direction
 		// m_snake->logCells();
 		// m_buffer.dumpBuffer();
+	}
+
+	void Game::insertFood()
+	{
+		// Place food at a random empty position
+		unsigned int foodX, foodY;
+		do
+		{
+			foodX = rand() % (m_width - 2) + 1;	 // avoid border
+			foodY = rand() % (m_height - 2) + 1; // avoid border
+		} while (!m_buffer.isPositionEmpty(foodX, foodY));
+
+		m_food = std::make_unique<Food>(foodX, foodY);
+		m_buffer.addObject(m_food.get());
+	}
+
+	ObjectPairs Game::s_GenerateUniquePairs(std::vector<BaseObject*> const &objs)
+	{
+		ObjectPairs pairs;
+
+		for (size_t i = 0; i < objs.size(); ++i)
+		{
+			for (size_t j = i + 1; j < objs.size(); ++j)
+			{
+				pairs.emplace_back(objs[i], objs[j]);
+			}
+		}
+
+		return pairs;
 	}
 
 	void Game::initLogger()

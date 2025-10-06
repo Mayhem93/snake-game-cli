@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <memory>
+#include <utility>
 
 #include "input.h"
 #include "screen.h"
@@ -10,6 +11,8 @@
 
 namespace Snake
 {
+	using ObjectPairs = std::vector<std::pair<BaseObject*, BaseObject*>>;
+
 	class Game
 	{
 		public:
@@ -37,5 +40,7 @@ namespace Snake
 
 			void initLogger();
 			void update();
+			void insertFood();
+			static ObjectPairs s_GenerateUniquePairs(std::vector<BaseObject*> const& objs);
 	};
 };

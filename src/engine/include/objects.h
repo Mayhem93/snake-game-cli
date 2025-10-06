@@ -5,44 +5,47 @@
 
 namespace Snake
 {
-	enum class CollisionResult
-	{
-		NONE,
-		FOOD,
-		WALL,
-		SELF
-	};
-
 	enum class CollisionType
 	{
-		None,	// No collision (decorative objects)
-		Solid,	// Blocks movement, causes game over
-		Trigger // Causes events but doesn't block movement
+		NONE,	// No collision (decorative objects)
+		SOLID,	// Blocks movement, causes game over
+		TRIGGER,// Causes events but doesn't block movement
+		SELF	// Implies SOLID, allows self-collision detection
+	};
+
+	enum class CollisionResult
+	{
+		NONE,			// No collision
+		POINTS,			// e.g. food eaten
+		GAME_OVER		// e.g. hit wall or self
 	};
 
 	class BaseObject {
 		public:
-			BaseObject();
+			BaseObject(CollisionType colType = CollisionType::NONE);
 			virtual ~BaseObject() = default;
 
-			virtual CollisionResult getCollisionResult(const BaseObject *other) const;
-
 			const std::vector<PCellPtr>& cells() const;
+
 			CollisionType getCollisionType() const;
+			virtual CollisionResult getCollisionResult(BaseObject const& other) const = 0;
+
+		protected:
+			std::vector<std::unique_ptr<PositionedCell>> m_cells;
+
 			void addPCell(PCellPtr& pCell);
 			static CellPtr s_MakeCell(const Cell& cell);
 			static PCellPtr s_MakePCell(unsigned int x, unsigned int y, CellPtr cell);
 
-		protected:
-			std::vector<std::unique_ptr<PositionedCell>> m_cells;
-			CollisionType m_collisionType = CollisionType::None;
+		private:
+			CollisionType m_collisionType;
 	};
 
 	class Border : public BaseObject
 	{
 		public:
 			Border(unsigned int width, unsigned int height);
-			CollisionResult getCollisionResult(const BaseObject *other) const override;
+			CollisionResult getCollisionResult(BaseObject const &other) const override;
 	};
 
 	class Snake : public BaseObject
@@ -60,6 +63,7 @@ namespace Snake
 
 			void setDirection(Direction direction);
 			std::pair<unsigned int, unsigned int> getHeadPosition() const;
+			CollisionResult getCollisionResult(BaseObject const &other) const override;
 			void move();
 			void up();
 			void down();
@@ -77,5 +81,6 @@ namespace Snake
 	{
 		public:
 			Food(unsigned int x, unsigned int y);
+			CollisionResult getCollisionResult(BaseObject const &other) const override;
 	};
 };

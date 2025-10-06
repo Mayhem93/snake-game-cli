@@ -8,7 +8,8 @@
 
 namespace Snake
 {
-	BaseObject::BaseObject() = default;
+	BaseObject::BaseObject(CollisionType colType)
+		: m_collisionType(colType) {}
 
 	const std::vector<std::unique_ptr<PositionedCell>>& BaseObject::cells() const
 	{
@@ -18,11 +19,6 @@ namespace Snake
 	CollisionType BaseObject::getCollisionType() const
 	{
 		return m_collisionType;
-	}
-
-	CollisionResult BaseObject::getCollisionResult(const BaseObject *other) const
-	{
-		return CollisionResult::NONE;
 	}
 
 	void BaseObject::addPCell(PCellPtr& pCell)
@@ -41,68 +37,65 @@ namespace Snake
 	}
 
 	Border::Border(unsigned int width, unsigned int height) :
-		BaseObject()
+		BaseObject(CollisionType::SOLID)
 	{
-		m_collisionType = CollisionType::Solid;
-
 		// Top and bottom rows
 		for (unsigned int x = 1; x < width - 1; ++x)
 		{
-			auto pTopCell = s_MakePCell(x, 0, s_MakeCell(Cell{ .codepoint = TGLYPHS::HORIZ_DOUBLE_LINE }));
+			PCellPtr pTopCell = s_MakePCell(x, 0, s_MakeCell(Cell{ .codepoint = TGLYPHS::HORIZ_DOUBLE_LINE }));
 			addPCell(pTopCell);
 
-			auto pBottomCell = s_MakePCell(x, height - 1, s_MakeCell(Cell{ .codepoint = TGLYPHS::HORIZ_DOUBLE_LINE }));
+			PCellPtr pBottomCell = s_MakePCell(x, height - 1, s_MakeCell(Cell{ .codepoint = TGLYPHS::HORIZ_DOUBLE_LINE }));
 			addPCell(pBottomCell);
 		}
 
 		// Left and right columns
 		for (unsigned int y = 1; y < height - 1; ++y)
 		{
-			auto pLeftCell = s_MakePCell(0, y, s_MakeCell(Cell{ .codepoint = TGLYPHS::VERT_DOUBLE_LINE }));
+			PCellPtr pLeftCell = s_MakePCell(0, y, s_MakeCell(Cell{ .codepoint = TGLYPHS::VERT_DOUBLE_LINE }));
 			addPCell(pLeftCell);
 
-			auto pRightCell = s_MakePCell(width - 1, y, s_MakeCell(Cell{ .codepoint = TGLYPHS::VERT_DOUBLE_LINE }));
+			PCellPtr pRightCell = s_MakePCell(width - 1, y, s_MakeCell(Cell{ .codepoint = TGLYPHS::VERT_DOUBLE_LINE }));
 			addPCell(pRightCell);
 		}
 
 		// Corners
-		auto pTopLeftCell = s_MakePCell(0, 0, s_MakeCell(Cell{ .codepoint = TGLYPHS::TOP_LEFT_DOUBLE_CORNER }));
+		PCellPtr pTopLeftCell = s_MakePCell(0, 0, s_MakeCell(Cell{ .codepoint = TGLYPHS::TOP_LEFT_DOUBLE_CORNER }));
 		addPCell(pTopLeftCell);
 
-		auto pTopRightCell = s_MakePCell(width - 1, 0, s_MakeCell(Cell{ .codepoint = TGLYPHS::TOP_RIGHT_DOUBLE_CORNER }));
+		PCellPtr pTopRightCell = s_MakePCell(width - 1, 0, s_MakeCell(Cell{ .codepoint = TGLYPHS::TOP_RIGHT_DOUBLE_CORNER }));
 		addPCell(pTopRightCell);
 
-		auto pBottomLeftCell = s_MakePCell(0, height - 1, s_MakeCell(Cell{ .codepoint = TGLYPHS::BOTTOM_LEFT_DOUBLE_CORNER }));
+		PCellPtr pBottomLeftCell = s_MakePCell(0, height - 1, s_MakeCell(Cell{ .codepoint = TGLYPHS::BOTTOM_LEFT_DOUBLE_CORNER }));
 		addPCell(pBottomLeftCell);
 
-		auto pBottomRightCell = s_MakePCell(width - 1, height - 1, s_MakeCell(Cell{ .codepoint = TGLYPHS::BOTTOM_RIGHT_DOUBLE_CORNER }));
+		PCellPtr pBottomRightCell = s_MakePCell(width - 1, height - 1, s_MakeCell(Cell{ .codepoint = TGLYPHS::BOTTOM_RIGHT_DOUBLE_CORNER }));
 		addPCell(pBottomRightCell);
 	}
 
-	CollisionResult Border::getCollisionResult(const BaseObject *other) const
+	CollisionResult Border::getCollisionResult(BaseObject const& other) const
 	{
-		if (other->getCollisionType() == CollisionType::Solid)
+		if (other.getCollisionType() == CollisionType::SELF ||
+			other.getCollisionType() == CollisionType::SOLID)
 		{
-			return CollisionResult::WALL;
+			return CollisionResult::GAME_OVER; // e.g. hit wall
 		}
 
-		return CollisionResult::NONE;
+		return CollisionResult::NONE; // No collision
 	}
 
 	Snake::Snake(unsigned int startX, unsigned int startY)
-		: BaseObject()
+		: BaseObject(CollisionType::SELF)
 	{
-		m_collisionType = CollisionType::Solid;
-
-		auto pHeadCell = s_MakePCell(startX, startY, s_MakeCell(Cell{ .codepoint = TGLYPHS::SNAKE_HEAD_LEFT }));
+		PCellPtr pHeadCell = s_MakePCell(startX, startY, s_MakeCell(Cell{ .codepoint = TGLYPHS::SNAKE_HEAD_LEFT }));
 		addPCell(pHeadCell);
 
 		for (unsigned int i = 1; i <= m_length - 2; ++i) {
-			auto pBodyCell = s_MakePCell(startX + i, startY, s_MakeCell(Cell{ .codepoint = TGLYPHS::SNAKE_BODY }));
+			PCellPtr pBodyCell = s_MakePCell(startX + i, startY, s_MakeCell(Cell{ .codepoint = TGLYPHS::SNAKE_BODY }));
 			addPCell(pBodyCell);
 		}
 
-		auto pTailCell = s_MakePCell(startX + m_length - 1, startY, s_MakeCell(Cell{ .codepoint = TGLYPHS::SNAKE_TAIL_RIGHT }));
+		PCellPtr pTailCell = s_MakePCell(startX + m_length - 1, startY, s_MakeCell(Cell{ .codepoint = TGLYPHS::SNAKE_TAIL_RIGHT }));
 		addPCell(pTailCell);
 	}
 
@@ -207,6 +200,24 @@ namespace Snake
 		setDirection(Direction::Right);
 	}
 
+	CollisionResult Snake::getCollisionResult(BaseObject const& other) const
+	{
+		// checking for object's collision type is very generic
+		// in the future we might want to check for specific object types
+		switch (other.getCollisionType())
+		{
+			case CollisionType::NONE:
+				return CollisionResult::NONE; // No collision
+			case CollisionType::TRIGGER:
+				return CollisionResult::POINTS; // e.g. food eaten
+			case CollisionType::SOLID:
+			case CollisionType::SELF:
+				return CollisionResult::GAME_OVER; // e.g. hit wall or self
+			default:
+				return CollisionResult::NONE; // No collision
+		}
+	}
+
 	void Snake::logCells() const
 	{
 		for (const auto& cell : m_cells) {
@@ -215,11 +226,19 @@ namespace Snake
 	}
 
 	Food::Food(unsigned int x, unsigned int y)
-		: BaseObject()
+		: BaseObject(CollisionType::TRIGGER)
 	{
-		m_collisionType = CollisionType::Trigger;
-
-		auto pFoodCell = s_MakePCell(x, y, s_MakeCell(Cell{ .codepoint = TGLYPHS::FOOD }));
+		PCellPtr pFoodCell = s_MakePCell(x, y, s_MakeCell(Cell{ .codepoint = TGLYPHS::FOOD }));
 		addPCell(pFoodCell);
+	}
+
+	CollisionResult Food::getCollisionResult(BaseObject const& other) const
+	{
+		if (typeid(other) == typeid(Snake))
+		{
+			return CollisionResult::POINTS; // e.g. food eaten
+		}
+
+		return CollisionResult::NONE; // No collision
 	}
 };
