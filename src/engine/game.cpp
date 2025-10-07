@@ -13,12 +13,20 @@
 #include "include/terminal.h"
 #include "include/input.h"
 #include "include/objects.h"
+#include "include/utils.h"
+
+#ifdef _WIN32
+//#include <windows.h>
+#include <conio.h>
+#endif
 
 namespace Snake
 {
 	Game::Game()
 	{
 		initLogger();
+		Game::setupSignalHandling(); // it's not a real cli program if we don't handle SIGINT (on windows it's different; no proper sigint)
+
 		m_terminal = Terminal();
 		m_width = m_terminal.width();
 		m_height = m_terminal.height();
@@ -40,8 +48,6 @@ namespace Snake
 			std::cerr << "Failed to initialize stdin in raw mode" << std::endl;
 			exit(1);
 		}
-
-		std::signal(SIGINT, Input::signalHandler); // it's not a real cli program if we don't handle SIGINT
 
 		while (!Input::g_exitRequested)
 		{
@@ -147,7 +153,7 @@ namespace Snake
 	{
 		boost::log::add_common_attributes();
 
-		std::filesystem::path exePath = std::filesystem::canonical("/proc/self/exe");
+		std::filesystem::path exePath = Utils::getExecutablePath();
 		std::filesystem::path iniPath = exePath.parent_path() / "logging.ini";
 
 		std::ifstream cfg(iniPath);
@@ -158,5 +164,10 @@ namespace Snake
 		boost::log::init_from_stream(cfg);
 
 		BOOST_LOG_TRIVIAL(info) << "Logger initialized";
+	}
+
+	void Game::setupSignalHandling()
+	{
+		std::signal(SIGINT, Input::signalHandler);
 	}
 };

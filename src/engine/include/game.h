@@ -42,5 +42,6 @@ namespace Snake
 			void update();
 			void insertFood();
 			static ObjectPairs s_GenerateUniquePairs(std::vector<BaseObject*> const& objs);
+			static void setupSignalHandling();
 	};
 };

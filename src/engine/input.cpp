@@ -80,34 +80,35 @@ namespace Snake
 #if defined(_WIN32)
 			if (!_kbhit())
 				return ev;
+
 			int c = _getch();
 
-			// arrow keys come as two‐byte codes: 0 or 0xE0, then code
-			if (c == 0 || c == 0xE0)
-			{
-				int c2 = _getch();
-				switch (c2)
-				{
-				case 72:
-					return {KeyKind::ArrowUp, 0};
-				case 80:
-					return {KeyKind::ArrowDown, 0};
-				case 75:
-					return {KeyKind::ArrowLeft, 0};
-				case 77:
-					return {KeyKind::ArrowRight, 0};
-				default:
-					return ev;
+			if (c == '\r' || c == '\n')
+				return { KeyKind::Enter, 0 };
+
+			// Check if this is an ESC sequence (Linux-style on Windows)
+			if (c == 27) {  // ESC
+				// Try to get the '[' character
+				if (_kbhit()) {
+					int c2 = _getch();
+
+					if (c2 == '[') {
+						// Try to get the arrow key code
+						if (_kbhit()) {
+							int c3 = _getch();
+
+							switch (c3) {
+								case 'A': return { KeyKind::ArrowUp, 0 };
+								case 'B': return { KeyKind::ArrowDown, 0 };
+								case 'C': return { KeyKind::ArrowRight, 0 };
+								case 'D': return { KeyKind::ArrowLeft, 0 };
+							}
+						}
+					}
 				}
 			}
-
-			if (c == '\r' || c == '\n')
-				return {KeyKind::Enter, 0};
-			if (c == 27)
-				return {KeyKind::EscapeKey, 0};
-
-			// printable ASCII or extended byte
-			return {KeyKind::Char, static_cast<char32_t>(c)};
+			// If we get here, it's just a plain ESC key
+			return { KeyKind::EscapeKey, 0 };
 
 #else
 			unsigned char buf[3];
