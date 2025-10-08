@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <thread>
+#include <boost/log/trivial.hpp>
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -48,6 +50,13 @@ namespace Snake
 		std::cout.flush();
 		clearScreen();
 		hideCursor();
+
+		if (!Input::initStdinRaw())
+		{
+			BOOST_LOG_TRIVIAL(error) << "Failed to initialize stdin in raw mode";
+
+			exit(1);
+		}
 	}
 
 	Terminal::~Terminal()
@@ -125,16 +134,47 @@ namespace Snake
 		return out;
 	}
 
+	void Terminal::recoverFromOutputFailure()
+	{
+		BOOST_LOG_TRIVIAL(warning) << "Attempting terminal recovery from output failure";
+
+		// Clear iostream error flags
+		std::cout.clear();
+		std::cerr.clear();
+
+		// Reset terminal state
+		std::cout << "\033c"; // Full terminal reset
+		std::cout.flush();
+
+		// Wait a moment for terminal to process reset
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+		// Re-enter alternate screen and set up terminal state
+		std::cout << TSEQ::ALTERNATE_SCREEN;
+		std::cout << TSEQ::HIDE_CURSOR;
+		clearScreen();
+		std::cout.flush();
+
+		BOOST_LOG_TRIVIAL(info) << "Terminal recovery completed";
+	}
+
 	void Terminal::render(ScreenBuffer const& buf)
 	{
+		moveCursor(0, 0);
+
 		for (int y = 0; y < m_height; ++y)
 		{
-			moveCursor(y, 0);
-
 			for (int x = 0; x < m_width; ++x)
 			{
 				CellPtr cellPtr = buf.get(x, y);
 				const Cell &cell = *cellPtr;
+
+				if (cell.codepoint == TGLYPHS::SPACE)
+				{
+					continue; // Don't render empty/space cells
+				}
+
+				moveCursor(y, x);
 
 				if (cell.default_fg) {
 				    std::cout << TSEQ::DEFAULT_FOREGROUND; // default foreground
@@ -154,5 +194,10 @@ namespace Snake
 
 		hideCursor();
 		std::cout.flush();
+
+		if (std::cout.fail())
+		{
+			recoverFromOutputFailure();
+		}
 	}
 }

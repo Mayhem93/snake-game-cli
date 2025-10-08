@@ -15,22 +15,21 @@
 #include "include/objects.h"
 #include "include/utils.h"
 
-#ifdef _WIN32
-//#include <windows.h>
-#include <conio.h>
-#endif
-
 namespace Snake
 {
 	Game::Game()
 	{
 		initLogger();
-		Game::setupSignalHandling(); // it's not a real cli program if we don't handle SIGINT (on windows it's different; no proper sigint)
+
+		Game::setupSignalHandling(); // it's not a real cli program if we don't handle SIGINT; does nothing under Windows
 
 		m_terminal = Terminal();
+
 		m_width = m_terminal.width();
 		m_height = m_terminal.height();
 		m_buffer = ScreenBuffer(m_width, m_height);
+
+		BOOST_LOG_TRIVIAL(info) << "Terminal size: " << m_width << " x " << m_height;
 
 		m_border = std::make_unique<Border>(m_width, m_height);
 		m_snake = std::make_unique<Snake>(static_cast<unsigned int>(m_width / 2), static_cast<unsigned int>(m_height / 2));
@@ -43,12 +42,6 @@ namespace Snake
 
 	void Game::run()
 	{
-		if (!Input::initStdinRaw())
-		{
-			std::cerr << "Failed to initialize stdin in raw mode" << std::endl;
-			exit(1);
-		}
-
 		while (!Input::g_exitRequested)
 		{
 			auto currentTime = std::chrono::steady_clock::now();
@@ -56,7 +49,7 @@ namespace Snake
 			Input::KeyEvent key = Input::readKey();
 
 			if (key.kind == Input::KeyKind::Enter) // alternative exit
-				break;
+				Input::g_exitRequested = true;
 
 			if (key.kind != Input::KeyKind::None)
 			{
@@ -72,8 +65,14 @@ namespace Snake
 				std::vector<BaseObject*> testVector;
 				testVector.push_back(m_snake.get());
 				testVector.push_back(m_border.get());
+				if (m_food != nullptr)
+				{
+					testVector.push_back(m_food.get());
+				}
 
 				ObjectPairs testPairs = s_GenerateUniquePairs(testVector);
+
+				handleCollisionResult(s_CheckCollisions(testPairs));
 
 				m_buffer.updateObjects();
 				m_terminal.render(m_buffer);
@@ -89,8 +88,6 @@ namespace Snake
 
 	void Game::update()
 	{
-		BOOST_LOG_TRIVIAL(info) << "Game update with input: " << static_cast<int>(m_pendingInput);
-
 		if (m_FramesElapsed != 0 && m_FramesElapsed % s_FoodFreq == 0 && m_food == nullptr)
 		{
 			insertFood();
@@ -134,6 +131,15 @@ namespace Snake
 		m_buffer.addObject(m_food.get());
 	}
 
+	void Game::removeFood()
+	{
+		if (m_food != nullptr)
+		{
+			m_buffer.removeObject(m_food.get());
+			m_food = nullptr;
+		}
+	}
+
 	ObjectPairs Game::s_GenerateUniquePairs(std::vector<BaseObject*> const &objs)
 	{
 		ObjectPairs pairs;
@@ -142,11 +148,70 @@ namespace Snake
 		{
 			for (size_t j = i + 1; j < objs.size(); ++j)
 			{
+				if (objs[i]->getCollisionType() == CollisionType::NONE &&
+					objs[j]->getCollisionType() == CollisionType::NONE)
+				{
+					continue; // Skip pairs where either object has no collision
+				}
+
 				pairs.emplace_back(objs[i], objs[j]);
 			}
 		}
 
 		return pairs;
+	}
+
+	CollisionResult Game::s_CheckCollisions(ObjectPairs const &pairs)
+	{
+		for (const auto &[obj1, obj2] : pairs)
+		{
+			// Check if any cells from obj1 overlap with any cells from obj2
+			for (const auto &cell1 : obj1->cells())
+			{
+				for (const auto &cell2 : obj2->cells())
+				{
+					if (cell1->x == cell2->x && cell1->y == cell2->y)
+					{
+						// Collision detected! Ask obj1 what should happen
+						CollisionResult result = obj1->getCollisionResult(*obj2);
+
+						if (result != CollisionResult::NONE)
+						{
+							BOOST_LOG_TRIVIAL(info) << "Collision detected! Result: " << static_cast<int>(result);
+
+							return result; // Stop at first collision
+						}
+					}
+				}
+			}
+		}
+
+		return CollisionResult::NONE; // No collisions detected
+	}
+
+	void Game::handleCollisionResult(CollisionResult result)
+	{
+		// Handle collision results
+		switch (result)
+		{
+			case CollisionResult::POINTS:
+				BOOST_LOG_TRIVIAL(info) << "Snake ate food!";
+
+				removeFood();
+				m_snake.get()->grow();
+
+				break;
+
+			case CollisionResult::GAME_OVER:
+				BOOST_LOG_TRIVIAL(info) << "Game Over!";
+
+				Input::g_exitRequested = true; // End the game
+				break;
+
+			case CollisionResult::NONE:
+				// Continue normally
+				break;
+		}
 	}
 
 	void Game::initLogger()

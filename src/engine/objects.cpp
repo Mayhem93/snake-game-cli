@@ -200,6 +200,62 @@ namespace Snake
 		setDirection(Direction::Right);
 	}
 
+	void Snake::grow()
+	{
+		if (m_cells.size() < 2)
+		{
+			// Edge case: snake too small to grow properly
+			BOOST_LOG_TRIVIAL(warning) << "Snake too small to grow";
+
+			return;
+		}
+
+		// Get the current tail position (last segment)
+		int tailIndex = m_cells.size() - 1;
+		unsigned int tailX = m_cells[tailIndex]->x;
+		unsigned int tailY = m_cells[tailIndex]->y;
+
+		// Create new body segment at current tail position
+		PCellPtr newBodyCell = s_MakePCell(tailX, tailY, s_MakeCell(Cell{.codepoint = TGLYPHS::SNAKE_BODY}));
+
+		// Insert the new body segment before the tail
+		m_cells.insert(m_cells.end() - 1, std::move(newBodyCell));
+
+		// Now move the tail one position back (opposite to the direction it came from)
+		int prevIndex = m_cells.size() - 2;	   // Second to last (the new body segment we just added)
+		int newTailIndex = m_cells.size() - 1; // Still the tail
+
+		// Calculate direction from new body segment to where tail should go
+		int dx = m_cells[newTailIndex]->x - m_cells[prevIndex]->x;
+		int dy = m_cells[newTailIndex]->y - m_cells[prevIndex]->y;
+
+		// Move tail one step further in the same direction
+		if (dx > 0)
+		{
+			m_cells[newTailIndex]->x++;
+			m_cells[newTailIndex]->cell->codepoint = TGLYPHS::SNAKE_TAIL_RIGHT;
+		}
+		else if (dx < 0)
+		{
+			m_cells[newTailIndex]->x--;
+			m_cells[newTailIndex]->cell->codepoint = TGLYPHS::SNAKE_TAIL_LEFT;
+		}
+		else if (dy > 0)
+		{
+			m_cells[newTailIndex]->y++;
+			m_cells[newTailIndex]->cell->codepoint = TGLYPHS::SNAKE_TAIL_DOWN;
+		}
+		else if (dy < 0)
+		{
+			m_cells[newTailIndex]->y--;
+			m_cells[newTailIndex]->cell->codepoint = TGLYPHS::SNAKE_TAIL_UP;
+		}
+
+		m_length++; // Update length counter
+
+		BOOST_LOG_TRIVIAL(info) << "Snake grew! New length: " << m_length;
+	}
+
 	CollisionResult Snake::getCollisionResult(BaseObject const& other) const
 	{
 		// checking for object's collision type is very generic

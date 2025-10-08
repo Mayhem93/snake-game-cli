@@ -22,13 +22,13 @@ namespace Snake
 			void run();
 
 		private:
-			int m_width;
-			int m_height;
+			unsigned int m_width;
+			unsigned int m_height;
 			Input::KeyKind m_pendingInput = Input::KeyKind::None; // Store latest key
 			ScreenBuffer m_buffer;
 			Terminal m_terminal;
 
-			static constexpr int s_FrameTimeMs = 500;
+			static constexpr unsigned int s_FrameTimeMs = 500;
 			std::chrono::steady_clock::time_point m_lastFrameTime;
 			unsigned int m_FramesElapsed = 0;
 
@@ -41,7 +41,10 @@ namespace Snake
 			void initLogger();
 			void update();
 			void insertFood();
+			void removeFood();
 			static ObjectPairs s_GenerateUniquePairs(std::vector<BaseObject*> const& objs);
+			static CollisionResult s_CheckCollisions(ObjectPairs const& pairs);
+			void handleCollisionResult(CollisionResult result);
 			static void setupSignalHandling();
 	};
 };

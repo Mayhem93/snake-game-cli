@@ -80,7 +80,8 @@ namespace Snake
 	    }
 	}
 
-	void ScreenBuffer::updateObjects() {
+	void ScreenBuffer::updateObjects()
+	{
 		for (int i = 0; i < m_buffer.size(); ++i)
 		{
 			m_buffer[i] = m_emptyCell; // Point to shared empty cell

@@ -27,6 +27,7 @@ namespace Snake
 			int m_width = 0;
 			int m_height = 0;
 			static std::string toUnicode(uint32_t codepoint) noexcept;
+			void recoverFromOutputFailure();
 
 #ifdef _WIN32
 			HANDLE m_hStdin;
