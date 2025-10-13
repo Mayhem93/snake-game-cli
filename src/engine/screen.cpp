@@ -111,6 +111,22 @@ namespace Snake
 		return get(x, y) == m_emptyCell;
 	}
 
+	PosVector ScreenBuffer::getPositionsToClear() const
+	{
+		PosVector toClear;
+
+		for (BaseObject* obj : m_objects)
+		{
+			if (obj->isMovable()) // Only consider movable objects
+			{
+				PosVector vacated = obj->getVacatedPositions();
+				toClear.insert(toClear.end(), vacated.begin(), vacated.end());
+			}
+		}
+
+		return toClear;
+	}
+
 	std::string ScreenBuffer::s_ToUnicode(uint32_t codepoint) noexcept
 	{
 		std::string out;

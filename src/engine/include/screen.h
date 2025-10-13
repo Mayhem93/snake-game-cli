@@ -9,6 +9,7 @@
 namespace Snake
 {
 	class BaseObject;
+	using PosVector = std::vector<std::pair<unsigned int, unsigned int>>;
 
 	struct Cell
 	{
@@ -51,6 +52,7 @@ namespace Snake
 			void removeObject(BaseObject* obj);
 			void updateObjects();
 			bool isPositionEmpty(unsigned int x, unsigned int y) const;
+			PosVector getPositionsToClear() const;
 			void dumpBuffer() const;
 
 		private:

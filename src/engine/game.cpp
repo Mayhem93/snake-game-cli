@@ -112,7 +112,7 @@ namespace Snake
 				break;
 		}
 
-		m_snake->move(); // keep snake continuously moving with current direction
+		m_snake->performMove(); // keep snake continuously moving with current direction
 		// m_snake->logCells();
 		// m_buffer.dumpBuffer();
 	}

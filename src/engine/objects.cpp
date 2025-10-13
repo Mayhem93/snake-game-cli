@@ -8,12 +8,59 @@
 
 namespace Snake
 {
-	BaseObject::BaseObject(CollisionType colType)
-		: m_collisionType(colType) {}
+	BaseObject::BaseObject(CollisionType colType, bool isMovable)
+		: m_collisionType(colType),
+		  m_isMovable(isMovable)
+		{}
 
 	const std::vector<std::unique_ptr<PositionedCell>>& BaseObject::cells() const
 	{
 		return m_cells;
+	}
+
+	void BaseObject::move() {}
+
+	bool BaseObject::isMovable() const
+	{
+		return m_isMovable;
+	}
+
+	PosVector BaseObject::capturePositions()
+	{
+		PosVector pv;
+
+		for (const auto& pCell : m_cells)
+		{
+			pv.emplace_back(pCell->x, pCell->y);
+		}
+
+
+		return pv;
+	}
+
+	void BaseObject::performMove()
+	{
+		if (m_isMovable)
+		{
+			m_previousPositions = capturePositions();
+			move();
+			m_newPositions = capturePositions();
+		}
+	}
+
+	PosVector BaseObject::getVacatedPositions() const
+	{
+		PosVector vacated;
+
+		for (const auto& pos : m_previousPositions)
+		{
+			if (std::find(m_newPositions.begin(), m_newPositions.end(), pos) == m_newPositions.end())
+			{
+				vacated.push_back(pos);
+			}
+		}
+
+		return vacated;
 	}
 
 	CollisionType BaseObject::getCollisionType() const
@@ -85,7 +132,7 @@ namespace Snake
 	}
 
 	Snake::Snake(unsigned int startX, unsigned int startY)
-		: BaseObject(CollisionType::SELF)
+		: BaseObject(CollisionType::SELF, true)
 	{
 		PCellPtr pHeadCell = s_MakePCell(startX, startY, s_MakeCell(Cell{ .codepoint = TGLYPHS::SNAKE_HEAD_LEFT }));
 		addPCell(pHeadCell);

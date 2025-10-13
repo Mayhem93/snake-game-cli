@@ -160,6 +160,14 @@ namespace Snake
 
 	void Terminal::render(ScreenBuffer const& buf)
 	{
+		PosVector toClear = buf.getPositionsToClear();
+
+		for (const auto &[x, y] : toClear)
+		{
+			moveCursor(y, x);
+			std::cout << toUnicode(TGLYPHS::SPACE); // Clear cell by printing space
+		}
+
 		moveCursor(0, 0);
 
 		for (int y = 0; y < m_height; ++y)

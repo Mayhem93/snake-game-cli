@@ -28,7 +28,7 @@ namespace Snake
 			ScreenBuffer m_buffer;
 			Terminal m_terminal;
 
-			static constexpr unsigned int s_FrameTimeMs = 500;
+			static constexpr unsigned int s_FrameTimeMs = 250;
 			std::chrono::steady_clock::time_point m_lastFrameTime;
 			unsigned int m_FramesElapsed = 0;
 
