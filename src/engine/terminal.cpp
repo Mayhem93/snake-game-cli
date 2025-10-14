@@ -46,17 +46,27 @@ namespace Snake
 			m_height = w.ws_row - 1;
 		}
 #endif
-		std::cout << TSEQ::ALTERNATE_SCREEN; // Enter alternate screen buffer
-		std::cout.flush();
-		clearScreen();
-		hideCursor();
-
 		if (!Input::initStdinRaw())
 		{
 			BOOST_LOG_TRIVIAL(error) << "Failed to initialize stdin in raw mode";
 
 			exit(1);
 		}
+
+		std::cout << TSEQ::ALTERNATE_SCREEN;
+		std::cout.flush();
+
+		// Test 2: Disable scrolling explicitly (additional sequence)
+		std::cout << "\x1b[?7l"; // Disable line wrapping
+		std::cout.flush();
+
+		// Test 3: Clear and position
+		std::cout << TSEQ::CLEAR_SCREEN << TSEQ::CURSOR_HOME;
+		std::cout.flush();
+
+		// Test 4: Hide cursor
+		std::cout << TSEQ::HIDE_CURSOR;
+		std::cout.flush();
 	}
 
 	Terminal::~Terminal()

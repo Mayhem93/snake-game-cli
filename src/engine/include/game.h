@@ -25,8 +25,8 @@ namespace Snake
 			unsigned int m_width;
 			unsigned int m_height;
 			Input::KeyKind m_pendingInput = Input::KeyKind::None; // Store latest key
-			ScreenBuffer m_buffer;
 			Terminal m_terminal;
+			ScreenBuffer m_buffer;
 
 			static constexpr unsigned int s_FrameTimeMs = 250;
 			std::chrono::steady_clock::time_point m_lastFrameTime;

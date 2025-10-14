@@ -171,7 +171,20 @@ namespace Snake
 #ifndef _WIN32
 			if (g_termiosSaved)
 			{
-				tcsetattr(STDIN_FILENO, TCSANOW, &g_originalTermios);
+				// Only restore input-related flags, not display/scroll settings
+				termios current;
+				tcgetattr(STDIN_FILENO, &current);
+
+				// Restore only the input flags we changed
+				current.c_lflag |= (ICANON | ECHO); // Re-enable canonical mode & echo
+				current.c_cc[VMIN] = g_originalTermios.c_cc[VMIN];
+				current.c_cc[VTIME] = g_originalTermios.c_cc[VTIME];
+
+				tcsetattr(STDIN_FILENO, TCSANOW, &current);
+
+				// Restore file descriptor flags
+				int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+				fcntl(STDIN_FILENO, F_SETFL, flags & ~O_NONBLOCK);
 			}
 #endif
 		}

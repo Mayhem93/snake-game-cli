@@ -18,12 +18,12 @@
 namespace Snake
 {
 	Game::Game()
+		: m_terminal(),
+		  m_buffer(m_terminal.width(), m_terminal.height())
 	{
 		initLogger();
 
 		Game::setupSignalHandling(); // it's not a real cli program if we don't handle SIGINT; does nothing under Windows
-
-		m_terminal = Terminal();
 
 		m_width = m_terminal.width();
 		m_height = m_terminal.height();
