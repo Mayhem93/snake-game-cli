@@ -168,7 +168,7 @@ namespace Snake
 		BOOST_LOG_TRIVIAL(info) << "Terminal recovery completed";
 	}
 
-	void Terminal::render(ScreenBuffer const& buf)
+	void Terminal::render(ScreenBuffer& buf)
 	{
 		PosVector toClear = buf.getPositionsToClear();
 
@@ -177,6 +177,8 @@ namespace Snake
 			moveCursor(y, x);
 			std::cout << toUnicode(TGLYPHS::SPACE); // Clear cell by printing space
 		}
+
+		buf.clearPositions(toClear);
 
 		moveCursor(0, 0);
 

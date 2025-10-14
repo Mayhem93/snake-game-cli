@@ -54,6 +54,7 @@ namespace Snake
 			void updateObjects();
 			bool isPositionEmpty(unsigned int x, unsigned int y) const;
 			PosVector getPositionsToClear() const;
+			void clearPositions(const PosVector& positions);
 			void dumpBuffer() const;
 
 		private:

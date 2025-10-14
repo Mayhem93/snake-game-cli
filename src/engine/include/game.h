@@ -16,7 +16,7 @@ namespace Snake
 	class Game
 	{
 		public:
-			Game();
+			explicit Game();
 			~Game();
 
 			void run();
@@ -46,6 +46,6 @@ namespace Snake
 			static CollisionResult s_CheckCollisions(ObjectPairs const &pairs);
 			static CollisionResult s_CheckSelfCollisions(BaseObject* const &obj);
 			void handleCollisionResult(CollisionResult result);
-			static void setupSignalHandling();
+			static void s_setupSignalHandling();
 	};
 };

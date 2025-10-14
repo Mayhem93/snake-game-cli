@@ -127,6 +127,19 @@ namespace Snake
 		return toClear;
 	}
 
+	void ScreenBuffer::clearPositions(const PosVector& positions)
+	{
+		for (const auto& [x, y] : positions)
+		{
+			if (x < 0 || y < 0 || x >= m_width || y >= m_height)
+			{
+				continue; // Skip out-of-bounds
+			}
+
+			set(x, y, m_emptyCell);
+		}
+	}
+
 	std::string ScreenBuffer::s_ToUnicode(uint32_t codepoint) noexcept
 	{
 		std::string out;

@@ -10,7 +10,6 @@
 #include <boost/log/trivial.hpp>
 
 #include "include/game.h"
-#include "include/terminal.h"
 #include "include/input.h"
 #include "include/objects.h"
 #include "include/utils.h"
@@ -23,11 +22,10 @@ namespace Snake
 	{
 		initLogger();
 
-		Game::setupSignalHandling(); // it's not a real cli program if we don't handle SIGINT; does nothing under Windows
+		Game::s_setupSignalHandling(); // it's not a real cli program if we don't handle SIGINT; does nothing under Windows
 
 		m_width = m_terminal.width();
 		m_height = m_terminal.height();
-		m_buffer = ScreenBuffer(m_width, m_height);
 
 		BOOST_LOG_TRIVIAL(info) << "Terminal size: " << m_width << " x " << m_height;
 
@@ -279,7 +277,7 @@ namespace Snake
 		BOOST_LOG_TRIVIAL(info) << "Logger initialized";
 	}
 
-	void Game::setupSignalHandling()
+	void Game::s_setupSignalHandling()
 	{
 		std::signal(SIGINT, Input::signalHandler);
 	}

@@ -16,7 +16,7 @@ namespace Snake
 			Terminal();
 			~Terminal();
 			void clearScreen();
-			void render(ScreenBuffer const& buffer);
+			void render(ScreenBuffer& buffer);
 			void hideCursor();
 			void showCursor();
 			void moveCursor(int row, int col);
