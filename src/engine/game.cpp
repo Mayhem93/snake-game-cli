@@ -148,7 +148,7 @@ namespace Snake
 		{
 			for (size_t j = i + 1; j < objs.size(); ++j)
 			{
-				if (objs[i]->getCollisionType() == CollisionType::NONE &&
+				if (objs[i]->getCollisionType() == CollisionType::NONE ||
 					objs[j]->getCollisionType() == CollisionType::NONE)
 				{
 					continue; // Skip pairs where either object has no collision
@@ -156,15 +156,63 @@ namespace Snake
 
 				pairs.emplace_back(objs[i], objs[j]);
 			}
+
+			if (objs[i]->getCollisionType() == CollisionType::SELF)
+			{
+				pairs.emplace_back(objs[i], objs[i]); // Add self-pair
+			}
 		}
 
 		return pairs;
+	}
+
+	CollisionResult Game::s_CheckSelfCollisions(BaseObject* const &obj)
+	{
+		PosVector detectorPositions = obj->getDetectorCellsPos();
+
+		for (const auto &[x, y] : detectorPositions)
+		{
+			for (const auto &cell : obj->cells())
+			{
+				// Skip if this cell is also a detector (don't check detector vs detector)
+				if (cell->cell->detector)
+				{
+					continue;
+				}
+
+				// Check if detector position collides with non-detector cell
+				if (x == cell->x && y == cell->y)
+				{
+					BOOST_LOG_TRIVIAL(info) << "Self-collision detected between head and body!";
+					CollisionResult result = obj->getCollisionResult(*obj);
+
+					if (result != CollisionResult::NONE)
+					{
+						return result;
+					}
+				}
+			}
+		}
+
+		return CollisionResult::NONE; // No self-collisions detected
 	}
 
 	CollisionResult Game::s_CheckCollisions(ObjectPairs const &pairs)
 	{
 		for (const auto &[obj1, obj2] : pairs)
 		{
+			// Handle self-collision case
+			if (obj1 == obj2) {
+				CollisionResult result = s_CheckSelfCollisions(obj1);
+
+				if (result != CollisionResult::NONE)
+				{
+					return result; // Stop at first self-collision
+				}
+
+				continue; // Skip the regular collision check for self-pairs
+			}
+
 			// Check if any cells from obj1 overlap with any cells from obj2
 			for (const auto &cell1 : obj1->cells())
 			{

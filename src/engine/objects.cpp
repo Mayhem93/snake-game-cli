@@ -63,6 +63,21 @@ namespace Snake
 		return vacated;
 	}
 
+	PosVector BaseObject::getDetectorCellsPos() const
+	{
+		PosVector detectors;
+
+		for (const PCellPtr& pCell : m_cells)
+		{
+			if (pCell->cell->detector)
+			{
+				detectors.push_back({ pCell->x, pCell->y });
+			}
+		}
+
+		return detectors;
+	}
+
 	CollisionType BaseObject::getCollisionType() const
 	{
 		return m_collisionType;
@@ -134,7 +149,7 @@ namespace Snake
 	Snake::Snake(unsigned int startX, unsigned int startY)
 		: BaseObject(CollisionType::SELF, true)
 	{
-		PCellPtr pHeadCell = s_MakePCell(startX, startY, s_MakeCell(Cell{ .codepoint = TGLYPHS::SNAKE_HEAD_LEFT }));
+		PCellPtr pHeadCell = s_MakePCell(startX, startY, s_MakeCell(Cell{ .codepoint = TGLYPHS::SNAKE_HEAD_LEFT, .detector = true }));
 		addPCell(pHeadCell);
 
 		for (unsigned int i = 1; i <= m_length - 2; ++i) {

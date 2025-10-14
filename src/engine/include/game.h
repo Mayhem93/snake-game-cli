@@ -42,8 +42,9 @@ namespace Snake
 			void update();
 			void insertFood();
 			void removeFood();
-			static ObjectPairs s_GenerateUniquePairs(std::vector<BaseObject*> const& objs);
-			static CollisionResult s_CheckCollisions(ObjectPairs const& pairs);
+			static ObjectPairs s_GenerateUniquePairs(std::vector<BaseObject*> const &objs);
+			static CollisionResult s_CheckCollisions(ObjectPairs const &pairs);
+			static CollisionResult s_CheckSelfCollisions(BaseObject* const &obj);
 			void handleCollisionResult(CollisionResult result);
 			static void setupSignalHandling();
 	};

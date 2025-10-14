@@ -19,6 +19,7 @@ namespace Snake
 		uint8_t attrs = 0;
 		bool default_bg = true; // true: use terminal default background, false: use specified bg color
 		bool default_fg = true; // true: use terminal default foreground, false: use specified fg color
+		bool detector = false; // true: this cell is used for collision detection
 		constexpr bool operator==(Cell const& o) const noexcept = default;
 		constexpr bool operator!=(Cell const& o) const noexcept;
 	};

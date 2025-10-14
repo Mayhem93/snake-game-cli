@@ -34,7 +34,7 @@ namespace Snake
 			PosVector getVacatedPositions() const;
 			CollisionType getCollisionType() const;
 			virtual CollisionResult getCollisionResult(BaseObject const& other) const = 0;
-
+			PosVector getDetectorCellsPos() const;
 		protected:
 			std::vector<std::unique_ptr<PositionedCell>> m_cells;
 
