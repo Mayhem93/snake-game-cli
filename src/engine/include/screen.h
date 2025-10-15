@@ -39,16 +39,18 @@ namespace Snake
 	{
 		public:
 			ScreenBuffer() = default;
-			ScreenBuffer(int width, int height);
+			ScreenBuffer(unsigned int width, unsigned int height);
 
-			int width() const noexcept;
-			int height() const noexcept;
-			void set(int x, int y, const CellPtr& c) noexcept;
-			CellPtr get(int x, int y) const noexcept;
+			unsigned int width() const noexcept;
+			unsigned int height() const noexcept;
+			void set(unsigned int x, unsigned int y, const CellPtr& c) noexcept;
+			CellPtr get(unsigned int x, unsigned int y) const noexcept;
 
 			void addObject(BaseObject* obj);
 			void removeObject(BaseObject* obj);
 			void updateObjects();
+			//TODO: implement getObjects so Game class can access the list of objects
+			//const std::vector<BaseObject*>& getObjects() const noexcept
 			bool isPositionEmpty(unsigned int x, unsigned int y) const;
 			Cell* getEmptyCellPtr() const noexcept;
 			PosVector getPositionsToClear() const;
@@ -57,8 +59,8 @@ namespace Snake
 
 		private:
 			CellPtr m_emptyCell;
-			int m_width = 0;
-			int m_height = 0;
+			unsigned int m_width = 0;
+			unsigned int m_height = 0;
 			std::vector<CellPtr> m_buffer;
 			std::vector<BaseObject*> m_objects;
 			static std::string s_ToUnicode(uint32_t codepoint) noexcept;

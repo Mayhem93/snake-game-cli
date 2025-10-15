@@ -20,12 +20,13 @@ namespace Snake
 			void hideCursor();
 			void showCursor();
 			void moveCursor(unsigned int row, unsigned int col);
-			int width() const noexcept;
-			int height() const noexcept;
+			unsigned int width() const noexcept;
+			unsigned int height() const noexcept;
 
+			static constexpr unsigned int s_minTerminalArea = 1800; // e.g., 60x30
 		private:
-			int m_width = 0;
-			int m_height = 0;
+			unsigned int m_width = 0;
+			unsigned int m_height = 0;
 			static std::string toUnicode(uint32_t codepoint) noexcept;
 			void recoverFromOutputFailure();
 

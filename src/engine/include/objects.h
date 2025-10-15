@@ -29,10 +29,10 @@ namespace Snake
 
 			const std::vector<PCellPtr>& cells() const;
 
-			bool isMovable() const;
+			bool isMovable() const noexcept;
 			void performMove();
 			PosVector getVacatedPositions() const;
-			CollisionType getCollisionType() const;
+			CollisionType getCollisionType() const noexcept;
 			virtual CollisionResult getCollisionResult(BaseObject const& other) const = 0;
 			PosVector getDetectorCellsPos() const;
 		protected:

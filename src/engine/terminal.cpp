@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <format> // requires gcc 13 or newer
 #include <boost/log/trivial.hpp>
 
 #if defined(_WIN32)
@@ -41,7 +42,13 @@ namespace Snake
 		struct winsize w;
 		if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0)
 		{
-			//TODO: throw if terminal is too small
+			if (w.ws_col * w.ws_row < s_minTerminalArea)
+			{
+				throw std::runtime_error(
+					std::format("Terminal size too small ({} x {}), minimum area is {}", w.ws_col, w.ws_row, s_minTerminalArea)
+				);
+			}
+
 			m_width = w.ws_col;
 			m_height = w.ws_row - 1;
 		}
@@ -60,11 +67,9 @@ namespace Snake
 		std::cout << "\x1b[?7l"; // Disable line wrapping
 		std::cout.flush();
 
-		// Test 3: Clear and position
 		std::cout << TSEQ::CLEAR_SCREEN << TSEQ::CURSOR_HOME;
 		std::cout.flush();
 
-		// Test 4: Hide cursor
 		std::cout << TSEQ::HIDE_CURSOR;
 		std::cout.flush();
 	}
@@ -84,12 +89,12 @@ namespace Snake
 #endif
 	}
 
-	int Terminal::width() const noexcept
+	unsigned int Terminal::width() const noexcept
 	{
 		return m_width;
 	}
 
-	int Terminal::height() const noexcept
+	unsigned int Terminal::height() const noexcept
 	{
 		return m_height;
 	}

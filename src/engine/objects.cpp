@@ -20,7 +20,7 @@ namespace Snake
 
 	void BaseObject::move() {}
 
-	bool BaseObject::isMovable() const
+	bool BaseObject::isMovable() const noexcept
 	{
 		return m_isMovable;
 	}
@@ -78,7 +78,7 @@ namespace Snake
 		return detectors;
 	}
 
-	CollisionType BaseObject::getCollisionType() const
+	CollisionType BaseObject::getCollisionType() const noexcept
 	{
 		return m_collisionType;
 	}
@@ -273,23 +273,23 @@ namespace Snake
 		}
 
 		// Get the current tail position (last segment)
-		int tailIndex = m_cells.size() - 1;
+		unsigned int tailIndex = m_cells.size() - 1;
 		unsigned int tailX = m_cells[tailIndex]->x;
 		unsigned int tailY = m_cells[tailIndex]->y;
 
 		// Create new body segment at current tail position
-		PCellPtr newBodyCell = s_MakePCell(tailX, tailY, s_MakeCell(Cell{.codepoint = TGLYPHS::SNAKE_BODY}));
+		PCellPtr newBodyCell = s_MakePCell(tailX, tailY, s_MakeCell(Cell{ .codepoint = TGLYPHS::SNAKE_BODY }));
 
 		// Insert the new body segment before the tail
 		m_cells.insert(m_cells.end() - 1, std::move(newBodyCell));
 
 		// Now move the tail one position back (opposite to the direction it came from)
-		int prevIndex = m_cells.size() - 2;	   // Second to last (the new body segment we just added)
-		int newTailIndex = m_cells.size() - 1; // Still the tail
+		unsigned int prevIndex = m_cells.size() - 2;	   // Second to last (the new body segment we just added)
+		unsigned int newTailIndex = m_cells.size() - 1; // Still the tail
 
 		// Calculate direction from new body segment to where tail should go
-		int dx = m_cells[newTailIndex]->x - m_cells[prevIndex]->x;
-		int dy = m_cells[newTailIndex]->y - m_cells[prevIndex]->y;
+		unsigned int dx = m_cells[newTailIndex]->x - m_cells[prevIndex]->x;
+		unsigned int dy = m_cells[newTailIndex]->y - m_cells[prevIndex]->y;
 
 		// Move tail one step further in the same direction
 		if (dx > 0)
@@ -338,7 +338,7 @@ namespace Snake
 
 	void Snake::logCells() const
 	{
-		for (const auto& cell : m_cells) {
+		for (const PCellPtr& cell : m_cells) {
 			BOOST_LOG_TRIVIAL(info) << "Cell at (" << cell->x << ", " << cell->y << ")";
 		}
 	}

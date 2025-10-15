@@ -12,7 +12,7 @@ namespace Snake
 		return !(*this == o);
 	}
 
-	ScreenBuffer::ScreenBuffer(int width, int height) :
+	ScreenBuffer::ScreenBuffer(unsigned int width, unsigned int height) :
 		m_width(width),
 		m_height(height),
 		m_emptyCell(CellPtr(new Cell())) // Shared empty cell
@@ -21,12 +21,12 @@ namespace Snake
 		clear();
 	}
 
-	int ScreenBuffer::width() const noexcept
+	unsigned int ScreenBuffer::width() const noexcept
 	{
 		return m_width;
 	}
 
-	int ScreenBuffer::height() const noexcept
+	unsigned int ScreenBuffer::height() const noexcept
 	{
 		return m_height;
 	}
@@ -45,14 +45,14 @@ namespace Snake
 		return y * m_width + x;
 	}
 
-	void ScreenBuffer::set(int x, int y, const CellPtr& c) noexcept
+	void ScreenBuffer::set(unsigned int x, unsigned int y, const CellPtr& c) noexcept
 	{
-		if (x < 0 || y < 0 || x >= m_width || y >= m_height) { return; }
+		if (x >= m_width || y >= m_height) { return; }
 
 		m_buffer[index(x, y)] = c;
 	}
 
-	CellPtr ScreenBuffer::get(int x, int y) const noexcept
+	CellPtr ScreenBuffer::get(unsigned int x, unsigned int y) const noexcept
 	{
 		return m_buffer[index(x, y)];
 	}

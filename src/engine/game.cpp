@@ -16,7 +16,7 @@
 
 namespace Snake
 {
-	Game::Game()
+	Game::Game() try
 		: m_terminal(),
 		  m_buffer(m_terminal.width(), m_terminal.height())
 	{
@@ -34,6 +34,9 @@ namespace Snake
 
 		m_buffer.addObject(m_border.get());
 		m_buffer.addObject(m_snake.get());
+	} catch (const std::exception& e) {
+		std::cerr << "Exception during Game initialization: " << e.what() << std::endl;
+		exit(1);
 	}
 
 	Game::~Game() = default;

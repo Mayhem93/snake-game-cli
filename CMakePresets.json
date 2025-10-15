@@ -20,7 +20,8 @@
 			"binaryDir": "${sourceDir}/build/${presetName}",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Debug"
-			}
+			},
+      "toolchainFile": "$env{HOME}/vcpkg/scripts/buildsystems/vcpkg.cmake"
 		}
 	],
 	"buildPresets": [
