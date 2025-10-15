@@ -54,8 +54,6 @@ namespace Snake
 
 	CellPtr ScreenBuffer::get(int x, int y) const noexcept
 	{
-		// assert(x >= 0 && y >= 0 && x < width_ && y < height_);
-
 		return m_buffer[index(x, y)];
 	}
 
@@ -75,22 +73,22 @@ namespace Snake
 		}
 
 		// add empty cells where the object was
-	    for (const auto& cwp : obj->cells()) {
+	    for (const PCellPtr &cwp : obj->cells()) {
 	        set(cwp->x, cwp->y, m_emptyCell);
 	    }
 	}
 
 	void ScreenBuffer::updateObjects()
 	{
-		for (int i = 0; i < m_buffer.size(); ++i)
+		/* for (int i = 0; i < m_buffer.size(); ++i)
 		{
 			m_buffer[i] = m_emptyCell; // Point to shared empty cell
-		}
+		} */
 
 		// Update buffer to point to current object cell positions
-		for (auto *obj : m_objects)
+		for (const BaseObject* obj : m_objects)
 		{
-			for (const auto &posCell : obj->cells())
+			for (const PCellPtr& posCell : obj->cells())
 			{
 				if (posCell->x >= 0 && posCell->x < m_width &&
 					posCell->y >= 0 && posCell->y < m_height)
@@ -109,6 +107,11 @@ namespace Snake
 		}
 
 		return get(x, y) == m_emptyCell;
+	}
+
+	Cell* ScreenBuffer::getEmptyCellPtr() const noexcept
+	{
+		return m_emptyCell.get();
 	}
 
 	PosVector ScreenBuffer::getPositionsToClear() const

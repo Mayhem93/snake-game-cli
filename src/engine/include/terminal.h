@@ -19,7 +19,7 @@ namespace Snake
 			void render(ScreenBuffer& buffer);
 			void hideCursor();
 			void showCursor();
-			void moveCursor(int row, int col);
+			void moveCursor(unsigned int row, unsigned int col);
 			int width() const noexcept;
 			int height() const noexcept;
 
@@ -42,6 +42,7 @@ namespace Snake
 		constexpr const char* ESC = "\x1b";
 		constexpr const char* ALTERNATE_SCREEN = "\x1b[?1049h";
 		constexpr const char* EXIT_ALTERNATE_SCREEN = "\x1b[?1049l";
+		constexpr const char* TERMINAL_RESET = "\033c";
 		constexpr const char* CLEAR_SCREEN = "\x1b[2J";
 		constexpr const char* CURSOR_HOME = "\x1b[H";
 		constexpr const char* HIDE_CURSOR = "\x1b[?25l";

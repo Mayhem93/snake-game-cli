@@ -109,7 +109,7 @@ namespace Snake
 		std::cout << TSEQ::SHOW_CURSOR;
 	}
 
-	void Terminal::moveCursor(int row, int col)
+	void Terminal::moveCursor(unsigned int row, unsigned int col)
 	{
 		std::cout << "\033[" << (row + 1) << ";" << (col + 1) << "H";
 	}
@@ -153,7 +153,7 @@ namespace Snake
 		std::cerr.clear();
 
 		// Reset terminal state
-		std::cout << "\033c"; // Full terminal reset
+		std::cout << TSEQ::TERMINAL_RESET;
 		std::cout.flush();
 
 		// Wait a moment for terminal to process reset

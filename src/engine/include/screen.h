@@ -19,7 +19,7 @@ namespace Snake
 		uint8_t attrs = 0;
 		bool default_bg = true; // true: use terminal default background, false: use specified bg color
 		bool default_fg = true; // true: use terminal default foreground, false: use specified fg color
-		bool detector = false; // true: this cell is used for collision detection
+		bool detector = false; // true: this cell is used for collision detection in an object (e.g. snake head)
 		constexpr bool operator==(Cell const& o) const noexcept = default;
 		constexpr bool operator!=(Cell const& o) const noexcept;
 	};
@@ -43,9 +43,6 @@ namespace Snake
 
 			int width() const noexcept;
 			int height() const noexcept;
-
-			void clear();
-
 			void set(int x, int y, const CellPtr& c) noexcept;
 			CellPtr get(int x, int y) const noexcept;
 
@@ -53,6 +50,7 @@ namespace Snake
 			void removeObject(BaseObject* obj);
 			void updateObjects();
 			bool isPositionEmpty(unsigned int x, unsigned int y) const;
+			Cell* getEmptyCellPtr() const noexcept;
 			PosVector getPositionsToClear() const;
 			void clearPositions(const PosVector& positions);
 			void dumpBuffer() const;
@@ -64,6 +62,8 @@ namespace Snake
 			std::vector<CellPtr> m_buffer;
 			std::vector<BaseObject*> m_objects;
 			static std::string s_ToUnicode(uint32_t codepoint) noexcept;
+
+			void clear();
 
 			inline int index(int x, int y) const noexcept;
 	};
