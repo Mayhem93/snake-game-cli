@@ -5,7 +5,8 @@
 
 namespace Snake
 {
-	using PosVector = std::vector<std::pair<unsigned int, unsigned int>>;
+	using Position = std::pair<unsigned int, unsigned int>;
+	using PosVector = std::vector<Position>;
 
 	enum class CollisionType
 	{
@@ -73,7 +74,7 @@ namespace Snake
 			};
 
 			void setDirection(Direction direction);
-			std::pair<unsigned int, unsigned int> getHeadPosition() const;
+			Position getHeadPosition() const;
 			CollisionResult getCollisionResult(BaseObject const &other) const override;
 			void up();
 			void down();

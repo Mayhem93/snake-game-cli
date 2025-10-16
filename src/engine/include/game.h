@@ -13,25 +13,85 @@ namespace Snake
 {
 	using ObjectPairs = std::vector<std::pair<BaseObject*, BaseObject*>>;
 
+	/**
+	 * @brief Main game class controling game state, input, and rendering.
+	 */
 	class Game
 	{
 		public:
+			/**
+			 * @brief Construct a new Game object
+			 *
+			 * Initializes terminal, screen buffer, game objects, and logger.
+			 */
 			explicit Game();
+
+			/**
+			 * @brief Default destructor
+			 */
 			~Game();
 
+			/**
+			 * @brief Runs the main game loop until exit is requested.
+			 */
 			void run();
 
 		private:
+			/**
+			 * @brief Game area width resolved by `Snake::Terminal`
+			*/
 			unsigned int m_width;
+
+			/**
+			 * @brief Game area height resolved by `Snake::Terminal`
+			*/
 			unsigned int m_height;
+
+			/**
+			 * @brief Latest input key to be processed in the next frame
+			 *
+			 * Multiple key presses within a single frame will be ignored; only the last one is kept.
+			 */
 			Input::KeyKind m_pendingInput = Input::KeyKind::None; // Store latest key
+
+			/**
+			 * @brief `Snake::Terminal` instance
+			 */
 			Terminal m_terminal;
+
+			/**
+			 * @brief `Snake::ScreenBuffer` instance
+			 */
 			ScreenBuffer m_buffer;
 
+			/**
+			 * @brief Target frame time in milliseconds (250ms = 4 FPS)
+			 *
+			 * Lower values will make the game more difficult but suitable for big terminal windows.
+			 *
+			 * Higher values will make the game easier but suitable for small terminal windows.
+			 */
 			static constexpr unsigned int s_FrameTimeMs = 250;
+
+			/**
+			 * @brief Time point of the last rendered frame
+			 *
+			 * Used to calculate delta time for frame rate control.
+			 */
 			std::chrono::steady_clock::time_point m_lastFrameTime;
+
+			/**
+			 * @brief Number of frames elapsed since game start
+			 *
+			 * At the moment only used to determine when to spawn food.
+			 */
 			unsigned int m_FramesElapsed = 0;
 
+			/**
+			 * @brief Frequency of food appearance
+			 *
+			 * Used to calculate when to spawn food based on `m_FramesElapsed` ( every `s_FoodFreq` frames ).
+			 */
 			static constexpr unsigned int s_FoodFreq = 5; // frames
 
 			std::unique_ptr<Border> m_border;

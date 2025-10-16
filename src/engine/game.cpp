@@ -61,19 +61,10 @@ namespace Snake
 			{
 				update();
 				m_pendingInput = Input::KeyKind::None;
-				// At the moment we're hardcoding this vector of objects to check for collisions
-				// In future we might want to maintain a list of all active objects in the Game
-				std::vector<BaseObject*> testVector;
-				testVector.push_back(m_snake.get());
-				testVector.push_back(m_border.get());
-				if (m_food != nullptr)
-				{
-					testVector.push_back(m_food.get());
-				}
 
-				ObjectPairs testPairs = s_GenerateUniquePairs(testVector);
+				ObjectPairs uniquePairs = s_GenerateUniquePairs(m_buffer.getObjects());
 
-				handleCollisionResult(s_CheckCollisions(testPairs));
+				handleCollisionResult(s_CheckCollisions(uniquePairs));
 
 				m_buffer.updateObjects();
 				m_terminal.render(m_buffer);
@@ -114,8 +105,6 @@ namespace Snake
 		}
 
 		m_snake->performMove(); // keep snake continuously moving with current direction
-		// m_snake->logCells();
-		// m_buffer.dumpBuffer();
 	}
 
 	void Game::insertFood()
@@ -203,7 +192,8 @@ namespace Snake
 		for (const auto &[obj1, obj2] : pairs)
 		{
 			// Handle self-collision case
-			if (obj1 == obj2) {
+			if (obj1 == obj2) [[unlikely]]
+			{
 				CollisionResult result = s_CheckSelfCollisions(obj1);
 
 				if (result != CollisionResult::NONE)
@@ -219,7 +209,7 @@ namespace Snake
 			{
 				for (const auto &cell2 : obj2->cells())
 				{
-					if (cell1->x == cell2->x && cell1->y == cell2->y)
+					if (cell1->x == cell2->x && cell1->y == cell2->y) [[unlikely]]
 					{
 						// Collision detected! Ask obj1 what should happen
 						CollisionResult result = obj1->getCollisionResult(*obj2);

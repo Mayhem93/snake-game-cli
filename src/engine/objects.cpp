@@ -29,7 +29,7 @@ namespace Snake
 	{
 		PosVector pv;
 
-		for (const auto& pCell : m_cells)
+		for (const PCellPtr& pCell : m_cells)
 		{
 			pv.emplace_back(pCell->x, pCell->y);
 		}
@@ -52,7 +52,7 @@ namespace Snake
 	{
 		PosVector vacated;
 
-		for (const auto& pos : m_previousPositions)
+		for (const Position& pos : m_previousPositions)
 		{
 			if (std::find(m_newPositions.begin(), m_newPositions.end(), pos) == m_newPositions.end())
 			{
@@ -175,7 +175,7 @@ namespace Snake
 		m_currentDirection = direction;
 	}
 
-	std::pair<unsigned int, unsigned int> Snake::getHeadPosition() const
+	Position Snake::getHeadPosition() const
 	{
 		if (!m_cells.empty())
 		{
@@ -320,8 +320,6 @@ namespace Snake
 
 	CollisionResult Snake::getCollisionResult(BaseObject const& other) const
 	{
-		// checking for object's collision type is very generic
-		// in the future we might want to check for specific object types
 		switch (other.getCollisionType())
 		{
 			case CollisionType::NONE:

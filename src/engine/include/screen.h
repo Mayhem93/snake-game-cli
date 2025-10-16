@@ -50,7 +50,7 @@ namespace Snake
 			void removeObject(BaseObject* obj);
 			void updateObjects();
 			//TODO: implement getObjects so Game class can access the list of objects
-			//const std::vector<BaseObject*>& getObjects() const noexcept
+			const std::vector<BaseObject*>& getObjects() const noexcept;
 			bool isPositionEmpty(unsigned int x, unsigned int y) const;
 			Cell* getEmptyCellPtr() const noexcept;
 			PosVector getPositionsToClear() const;

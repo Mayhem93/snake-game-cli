@@ -57,6 +57,10 @@ namespace Snake
 		return m_buffer[index(x, y)];
 	}
 
+	std::vector<BaseObject*> const& ScreenBuffer::getObjects() const noexcept {
+		return m_objects;
+	}
+
 	void ScreenBuffer::addObject(BaseObject* obj) {
 		m_objects.push_back(obj);
 

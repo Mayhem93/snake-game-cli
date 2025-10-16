@@ -7,6 +7,7 @@ namespace Snake
 	namespace TGLYPHS
 	{
 		constexpr uint32_t SPACE = 0x20;						// ' '
+		// BORDER
 		constexpr uint32_t HORIZ_DOUBLE_LINE = 0x2550;			// ═
 		constexpr uint32_t VERT_DOUBLE_LINE = 0x2551;			// ║
 		constexpr uint32_t TOP_LEFT_DOUBLE_CORNER = 0x2554;		// ╔
