@@ -23,14 +23,29 @@ namespace Snake
 		GAME_OVER		// e.g. hit wall or self
 	};
 
+	enum class Attributes : uint16_t
+	{
+		NONE = 0,
+		MOVABLE = 1 << 0,
+		ANIMATED = 1 << 1
+	};
+
+	constexpr uint16_t operator& (Attributes a, Attributes b) noexcept;
+	constexpr uint16_t operator| (Attributes a, Attributes b) noexcept;
+	constexpr bool operator& (uint16_t a, Attributes b) noexcept;
+	constexpr bool operator& (Attributes a, uint16_t b) noexcept;
+	constexpr bool operator| (uint16_t a, Attributes b) noexcept;
+	constexpr bool operator| (Attributes a, uint16_t b) noexcept;
+
 	class BaseObject {
 		public:
-			BaseObject(CollisionType colType = CollisionType::NONE, bool isMovable = false);
+			BaseObject(CollisionType colType = CollisionType::NONE, uint16_t attrs = 0);
 			virtual ~BaseObject() = default;
 
 			const std::vector<PCellPtr>& cells() const;
 
 			bool isMovable() const noexcept;
+			bool isAnimated() const noexcept;
 			void performMove();
 			PosVector getVacatedPositions() const;
 			CollisionType getCollisionType() const noexcept;
@@ -45,7 +60,7 @@ namespace Snake
 			static PCellPtr s_MakePCell(unsigned int x, unsigned int y, CellPtr cell);
 
 		private:
-			bool m_isMovable;
+			uint16_t m_attributes;
 			CollisionType m_collisionType;
 			PosVector m_previousPositions;
 			PosVector m_newPositions;

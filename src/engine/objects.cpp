@@ -8,9 +8,39 @@
 
 namespace Snake
 {
-	BaseObject::BaseObject(CollisionType colType, bool isMovable)
+	constexpr uint16_t operator& (Attributes a, Attributes b) noexcept
+	{
+		return static_cast<uint16_t>(a) & static_cast<uint16_t>(b);
+	}
+
+	constexpr uint16_t operator| (Attributes a, Attributes b) noexcept
+	{
+		return static_cast<uint16_t>(a) | static_cast<uint16_t>(b);
+	}
+
+	constexpr bool operator& (uint16_t a, Attributes b) noexcept
+	{
+		return (a & static_cast<uint16_t>(b)) != 0;
+	}
+
+	constexpr bool operator& (Attributes a, uint16_t b) noexcept
+	{
+		return operator&(b, a);
+	}
+
+	constexpr bool operator| (uint16_t a, Attributes b) noexcept
+	{
+		return a | static_cast<uint16_t>(b);
+	}
+
+	constexpr bool operator| (Attributes a, uint16_t b) noexcept
+	{
+		return operator|(b, a);
+	}
+
+	BaseObject::BaseObject(CollisionType colType, uint16_t attrs)
 		: m_collisionType(colType),
-		  m_isMovable(isMovable)
+		  m_attributes(attrs)
 		{}
 
 	const std::vector<std::unique_ptr<PositionedCell>>& BaseObject::cells() const
@@ -22,7 +52,12 @@ namespace Snake
 
 	bool BaseObject::isMovable() const noexcept
 	{
-		return m_isMovable;
+		return m_attributes & Attributes::MOVABLE;
+	}
+
+	bool BaseObject::isAnimated() const noexcept
+	{
+		return m_attributes & Attributes::ANIMATED;
 	}
 
 	PosVector BaseObject::capturePositions()
@@ -40,7 +75,7 @@ namespace Snake
 
 	void BaseObject::performMove()
 	{
-		if (m_isMovable)
+		if (isMovable())
 		{
 			m_previousPositions = capturePositions();
 			move();
@@ -147,7 +182,7 @@ namespace Snake
 	}
 
 	Snake::Snake(unsigned int startX, unsigned int startY)
-		: BaseObject(CollisionType::SELF, true)
+		: BaseObject(CollisionType::SELF, Attributes::MOVABLE | Attributes::ANIMATED)
 	{
 		PCellPtr pHeadCell = s_MakePCell(startX, startY, s_MakeCell(Cell{ .codepoint = TGLYPHS::SNAKE_HEAD_LEFT, .detector = true }));
 		addPCell(pHeadCell);

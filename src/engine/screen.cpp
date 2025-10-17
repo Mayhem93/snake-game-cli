@@ -84,14 +84,13 @@ namespace Snake
 
 	void ScreenBuffer::updateObjects()
 	{
-		/* for (int i = 0; i < m_buffer.size(); ++i)
-		{
-			m_buffer[i] = m_emptyCell; // Point to shared empty cell
-		} */
-
 		// Update buffer to point to current object cell positions
 		for (const BaseObject* obj : m_objects)
 		{
+			if (!obj->isMovable() || !obj->isAnimated())
+			{
+				continue; // Static objects don't need updating
+			}
 			for (const PCellPtr& posCell : obj->cells())
 			{
 				if (posCell->x >= 0 && posCell->x < m_width &&
