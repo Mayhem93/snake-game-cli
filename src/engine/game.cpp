@@ -105,6 +105,7 @@ namespace Snake
 		}
 
 		m_snake->performMove(); // keep snake continuously moving with current direction
+		m_border->performAnimate();
 	}
 
 	void Game::insertFood()

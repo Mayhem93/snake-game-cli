@@ -43,12 +43,18 @@ namespace Snake
 		  m_attributes(attrs)
 		{}
 
+	BaseObject::BaseObject(CollisionType colType, Attributes attrs)
+		: m_collisionType(colType),
+		  m_attributes(static_cast<uint16_t>(attrs))
+		{}
+
 	const std::vector<std::unique_ptr<PositionedCell>>& BaseObject::cells() const
 	{
 		return m_cells;
 	}
 
 	void BaseObject::move() {}
+	void BaseObject::animate() {}
 
 	bool BaseObject::isMovable() const noexcept
 	{
@@ -80,6 +86,14 @@ namespace Snake
 			m_previousPositions = capturePositions();
 			move();
 			m_newPositions = capturePositions();
+		}
+	}
+
+	void BaseObject::performAnimate()
+	{
+		if (isAnimated())
+		{
+			animate();
 		}
 	}
 
@@ -133,40 +147,58 @@ namespace Snake
 	    return std::make_unique<PositionedCell>(PositionedCell{ x, y, cell });
 	}
 
-	Border::Border(unsigned int width, unsigned int height) :
-		BaseObject(CollisionType::SOLID)
+	void Border::generateColorSequence()
 	{
+		if (m_colorSequence.size() > 0)
+		{
+			return; // Already generated
+		}
+
+		m_colorSequence.reserve(256);
+
+		for (uint8_t color = 17; color <= 231; ++color)
+		{
+			m_colorSequence.push_back(color);
+		}
+
+		m_colorSequence.shrink_to_fit();
+	}
+
+	Border::Border(unsigned int width, unsigned int height) :
+		BaseObject(CollisionType::SOLID, Attributes::ANIMATED)
+	{
+		generateColorSequence();
 		// Top and bottom rows
 		for (unsigned int x = 1; x < width - 1; ++x)
 		{
-			PCellPtr pTopCell = s_MakePCell(x, 0, s_MakeCell(Cell{ .codepoint = TGLYPHS::HORIZ_DOUBLE_LINE }));
+			PCellPtr pTopCell = s_MakePCell(x, 0, s_MakeCell(Cell{ .codepoint = TGLYPHS::HORIZ_DOUBLE_LINE, .default_fg = false }));
 			addPCell(pTopCell);
 
-			PCellPtr pBottomCell = s_MakePCell(x, height - 1, s_MakeCell(Cell{ .codepoint = TGLYPHS::HORIZ_DOUBLE_LINE }));
+			PCellPtr pBottomCell = s_MakePCell(x, height - 1, s_MakeCell(Cell{ .codepoint = TGLYPHS::HORIZ_DOUBLE_LINE, .default_fg = false }));
 			addPCell(pBottomCell);
 		}
 
 		// Left and right columns
 		for (unsigned int y = 1; y < height - 1; ++y)
 		{
-			PCellPtr pLeftCell = s_MakePCell(0, y, s_MakeCell(Cell{ .codepoint = TGLYPHS::VERT_DOUBLE_LINE }));
+			PCellPtr pLeftCell = s_MakePCell(0, y, s_MakeCell(Cell{ .codepoint = TGLYPHS::VERT_DOUBLE_LINE, .default_fg = false }));
 			addPCell(pLeftCell);
 
-			PCellPtr pRightCell = s_MakePCell(width - 1, y, s_MakeCell(Cell{ .codepoint = TGLYPHS::VERT_DOUBLE_LINE }));
+			PCellPtr pRightCell = s_MakePCell(width - 1, y, s_MakeCell(Cell{ .codepoint = TGLYPHS::VERT_DOUBLE_LINE, .default_fg = false }));
 			addPCell(pRightCell);
 		}
 
 		// Corners
-		PCellPtr pTopLeftCell = s_MakePCell(0, 0, s_MakeCell(Cell{ .codepoint = TGLYPHS::TOP_LEFT_DOUBLE_CORNER }));
+		PCellPtr pTopLeftCell = s_MakePCell(0, 0, s_MakeCell(Cell{ .codepoint = TGLYPHS::TOP_LEFT_DOUBLE_CORNER, .default_fg = false }));
 		addPCell(pTopLeftCell);
 
-		PCellPtr pTopRightCell = s_MakePCell(width - 1, 0, s_MakeCell(Cell{ .codepoint = TGLYPHS::TOP_RIGHT_DOUBLE_CORNER }));
+		PCellPtr pTopRightCell = s_MakePCell(width - 1, 0, s_MakeCell(Cell{ .codepoint = TGLYPHS::TOP_RIGHT_DOUBLE_CORNER, .default_fg = false }));
 		addPCell(pTopRightCell);
 
-		PCellPtr pBottomLeftCell = s_MakePCell(0, height - 1, s_MakeCell(Cell{ .codepoint = TGLYPHS::BOTTOM_LEFT_DOUBLE_CORNER }));
+		PCellPtr pBottomLeftCell = s_MakePCell(0, height - 1, s_MakeCell(Cell{ .codepoint = TGLYPHS::BOTTOM_LEFT_DOUBLE_CORNER, .default_fg = false }));
 		addPCell(pBottomLeftCell);
 
-		PCellPtr pBottomRightCell = s_MakePCell(width - 1, height - 1, s_MakeCell(Cell{ .codepoint = TGLYPHS::BOTTOM_RIGHT_DOUBLE_CORNER }));
+		PCellPtr pBottomRightCell = s_MakePCell(width - 1, height - 1, s_MakeCell(Cell{ .codepoint = TGLYPHS::BOTTOM_RIGHT_DOUBLE_CORNER, .default_fg = false }));
 		addPCell(pBottomRightCell);
 	}
 
@@ -179,6 +211,19 @@ namespace Snake
 		}
 
 		return CollisionResult::NONE; // No collision
+	}
+
+	void Border::animate()
+	{
+		uint8_t newColor = m_colorSequence[m_animationFrame % m_colorSequence.size()];
+
+		for (const PCellPtr& pCell : m_cells)
+		{
+			pCell->cell->fg = newColor;
+			pCell->cell->default_fg = false;
+		}
+
+		m_animationFrame++;
 	}
 
 	Snake::Snake(unsigned int startX, unsigned int startY)
@@ -377,7 +422,7 @@ namespace Snake
 	}
 
 	Food::Food(unsigned int x, unsigned int y)
-		: BaseObject(CollisionType::TRIGGER)
+		: BaseObject(CollisionType::TRIGGER, Attributes::NONE)
 	{
 		PCellPtr pFoodCell = s_MakePCell(x, y, s_MakeCell(Cell{ .codepoint = TGLYPHS::FOOD }));
 		addPCell(pFoodCell);

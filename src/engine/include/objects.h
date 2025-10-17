@@ -40,6 +40,7 @@ namespace Snake
 	class BaseObject {
 		public:
 			BaseObject(CollisionType colType = CollisionType::NONE, uint16_t attrs = 0);
+			BaseObject(CollisionType colType = CollisionType::NONE, Attributes attrs = static_cast<Attributes>(0));
 			virtual ~BaseObject() = default;
 
 			const std::vector<PCellPtr>& cells() const;
@@ -47,15 +48,18 @@ namespace Snake
 			bool isMovable() const noexcept;
 			bool isAnimated() const noexcept;
 			void performMove();
+			void performAnimate();
 			PosVector getVacatedPositions() const;
 			CollisionType getCollisionType() const noexcept;
 			virtual CollisionResult getCollisionResult(BaseObject const& other) const = 0;
 			PosVector getDetectorCellsPos() const;
 		protected:
 			std::vector<std::unique_ptr<PositionedCell>> m_cells;
+			size_t m_animationFrame = 0;
 
 			void addPCell(PCellPtr& pCell);
 			virtual void move();
+			virtual void animate();
 			static CellPtr s_MakeCell(const Cell& cell);
 			static PCellPtr s_MakePCell(unsigned int x, unsigned int y, CellPtr cell);
 
@@ -73,6 +77,14 @@ namespace Snake
 		public:
 			Border(unsigned int width, unsigned int height);
 			CollisionResult getCollisionResult(BaseObject const &other) const override;
+
+		protected:
+			void animate() override;
+
+		private:
+			std::vector<uint8_t> m_colorSequence;
+
+			void generateColorSequence();
 	};
 
 	class Snake : public BaseObject
