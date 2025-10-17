@@ -9,8 +9,15 @@
 #include "terminal.h"
 #include "objects.h"
 
+/**
+ * @namespace Snake
+ * @brief Main namespace for the Snake game engine.
+ */
 namespace Snake
 {
+	/**
+	 * @brief Alias to `std::vector<std::pair<BaseObject*, BaseObject*>>`
+	 */
 	using ObjectPairs = std::vector<std::pair<BaseObject*, BaseObject*>>;
 
 	/**

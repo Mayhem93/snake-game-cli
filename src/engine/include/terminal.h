@@ -38,6 +38,10 @@ namespace Snake
 #endif
 	};
 
+	/**
+	 * @namespace Snake::TSEQ
+	 * @brief Namespace for terminal escape sequences.
+	 */
 	namespace TSEQ
 	{
 		constexpr const char* ESC = "\x1b";

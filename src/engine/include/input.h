@@ -5,6 +5,10 @@
 
 namespace Snake
 {
+	/**
+	 * @namespace Snake::Input
+	 * @brief Namespace for handling user input.
+	 */
 	namespace Input
 	{
 		bool initStdinRaw();

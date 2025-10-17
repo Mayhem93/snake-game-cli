@@ -4,6 +4,10 @@
 
 namespace Snake
 {
+	/**
+	 * @namespace Snake::TGLYPHS
+	 * @brief Contains glyph constants to render game elements in the terminal.
+	 */
 	namespace TGLYPHS
 	{
 		constexpr uint32_t SPACE = 0x20;						// ' '
