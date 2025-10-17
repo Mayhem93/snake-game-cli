@@ -5,9 +5,16 @@
 
 namespace Snake
 {
-	using Position = std::pair<unsigned int, unsigned int>;
-	using PosVector = std::vector<Position>;
-
+	/**
+	 * @enum CollisionType
+	 * @brief Types of collision behavior for game objects.
+	 *
+	 * @details
+	 * - NONE: No collision (decorative objects)
+	 * - SOLID: Blocks movement, causes game over
+	 * - TRIGGER: Causes events but doesn't block movement
+	 * - SELF: Implies SOLID, allows self-collision detection
+	 */
 	enum class CollisionType
 	{
 		NONE,	// No collision (decorative objects)
@@ -16,6 +23,15 @@ namespace Snake
 		SELF	// Implies SOLID, allows self-collision detection
 	};
 
+	/**
+	 * @enum CollisionResult
+	 * @brief Results of collision checks between game objects.
+	 *
+	 * @details
+	 * - NONE: No collision
+	 * - POINTS: e.g. food eaten
+	 * - GAME_OVER: e.g. hit wall or self
+	 */
 	enum class CollisionResult
 	{
 		NONE,			// No collision
@@ -23,6 +39,15 @@ namespace Snake
 		GAME_OVER		// e.g. hit wall or self
 	};
 
+	/**
+	 * @enum Attributes
+	 * @brief Attributes (used as flags) that can be assigned to game objects.
+	 *
+	 * @details
+	 * - NONE: (Default) No special attributes
+	 * - MOVABLE: Object can move
+	 * - ANIMATED: Object has animation frames (Snake::Cell can change appearance over time)
+	 */
 	enum class Attributes : uint16_t
 	{
 		NONE = 0,

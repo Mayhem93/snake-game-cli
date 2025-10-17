@@ -64,7 +64,7 @@ namespace Snake
 	void ScreenBuffer::addObject(BaseObject* obj) {
 		m_objects.push_back(obj);
 
-	    for (const auto& cwp : obj->cells()) {
+	    for (const PCellPtr& cwp : obj->cells()) {
 	        set(cwp->x, cwp->y, cwp->cell);
 	    }
 	}
@@ -112,9 +112,9 @@ namespace Snake
 		return get(x, y) == m_emptyCell;
 	}
 
-	Cell* ScreenBuffer::getEmptyCellPtr() const noexcept
+	CellPtr ScreenBuffer::getEmptyCellPtr() const noexcept
 	{
-		return m_emptyCell.get();
+		return m_emptyCell;
 	}
 
 	PosVector ScreenBuffer::getPositionsToClear() const

@@ -177,12 +177,14 @@ namespace Snake
 	{
 		PosVector toClear = buf.getPositionsToClear();
 
+		// 1st phase: update terminal contents
 		for (const auto &[x, y] : toClear)
 		{
 			moveCursor(y, x);
 			std::cout << toUnicode(TGLYPHS::SPACE); // Clear cell by printing space
 		}
 
+		// 2nd phase: update screen buffer to reflect cleared positions
 		buf.clearPositions(toClear);
 
 		moveCursor(0, 0);
@@ -192,6 +194,12 @@ namespace Snake
 			for (int x = 0; x < m_width; ++x)
 			{
 				CellPtr cellPtr = buf.get(x, y);
+
+				if (cellPtr == buf.getEmptyCellPtr())
+				{
+					continue; // Skip empty cells
+				}
+
 				const Cell &cell = *cellPtr;
 
 				if (cell.codepoint == TGLYPHS::SPACE)

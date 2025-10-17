@@ -105,9 +105,35 @@ namespace Snake
 			std::unique_ptr<Snake> m_snake;
 			std::unique_ptr<Food> m_food;
 
+			/**
+			 * @brief Initializes the logging system using `Boost::log`
+			 * @throws std::runtime_error if `logging.ini` cannot be opened
+			 *
+			 * Tries to open `logging.ini` in the executable directory for configuration.
+			 */
 			void initLogger();
+
+			/**
+			 * @brief Updates game state for the current frame
+			 *
+			 * Updates game objects based on input
+			 */
 			void update();
+
+			/**
+			 * @brief Inserts food at a random empty position in the game area
+			 * @callgraph
+			 *
+			 * Adds a Snake::Food object to `Snake::Game::m_buffer`.
+			 */
 			void insertFood();
+
+			/**
+			 * @brief Removes the current food object from the game area
+			 * @callgraph
+			 *
+			 * Removes the Snake::Food object from `Snake::Game::m_buffer`.
+			 */
 			void removeFood();
 			static ObjectPairs s_GenerateUniquePairs(std::vector<BaseObject*> const &objs);
 			static CollisionResult s_CheckCollisions(ObjectPairs const &pairs);
