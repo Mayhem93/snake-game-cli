@@ -48,7 +48,7 @@ namespace Snake
 		  m_attributes(static_cast<uint16_t>(attrs))
 		{}
 
-	const std::vector<std::unique_ptr<PositionedCell>>& BaseObject::cells() const
+	const std::vector<std::unique_ptr<PositionedCell>>& BaseObject::cells() const noexcept
 	{
 		return m_cells;
 	}
