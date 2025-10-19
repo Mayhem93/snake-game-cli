@@ -139,6 +139,7 @@ namespace Snake
 			/**
 			 * @brief Updates the object's position based on its movement logic
 			 * @callgraph
+			 * @callergraph
 			 *
 			 * Calls the implemented `BaseObject::move` method to update positions.
 			 *
@@ -151,6 +152,7 @@ namespace Snake
 			/**
 			 * @brief Updates the object's animation frame
 			 * @callgraph
+			 * @callergraph
 			 *
 			 * Calls the implemented `BaseObject::animate` method to update animation frame.
 			 *
@@ -207,6 +209,7 @@ namespace Snake
 
 			/**
 			 * @brief Used by derived classes to move it's cells according to its logic
+			 * @callergraph
 			 *
 			 * Does nothing if the object is not movable (eg: subclasses do not override this function).
 			 */
@@ -275,26 +278,85 @@ namespace Snake
 			PosVector capturePositions();
 	};
 
+	/**
+	 * @class Border
+	 * @brief Represents the border of the game area.
+	 *
+	 * @details
+	 * The Border object is a solid object that causes game over on collision.
+	 * It can be animated to change colors over time.
+	 */
 	class Border : public BaseObject
 	{
 		public:
+			/**
+			 * @brief Constructs a Border object with specified width and height representing the game area.
+			 * @callgraph
+			 * @param width Width of the game area
+			 * @param height Height of the game area
+			 */
 			Border(unsigned int width, unsigned int height);
+
+			/**
+			 * @brief Determines the result of a collision with another object
+			 * @param other Reference to the other Snake::BaseObject involved in the collision
+			 * @return Snake::CollisionResult Result of the collision
+			 *
+			 * Snake::CollisionResult::GAME_OVER is returned if the other object's collision type is SOLID or SELF.
+			 * Otherwise, Snake::CollisionResult::NONE is returned.
+			 */
 			CollisionResult getCollisionResult(BaseObject const &other) const override;
 
 		protected:
+			/**
+			 * @brief Animates the border by cycling through a color sequence
+			 */
 			void animate() override;
 
 		private:
+			/**
+			 * @brief Sequence of colors for border animation
+			 *
+			 * The sequence is generated in the constructor.
+			 */
 			std::vector<uint8_t> m_colorSequence;
 
+			/**
+			 * @brief Generates the color sequence for border animation
+			 * @callergraph
+			 */
 			void generateColorSequence();
 	};
 
+	/**
+	 * @class Snake
+	 * @brief Represents the snake controlled by the player.
+	 *
+	 * @details
+	 * The Snake object is a movable and self-colliding object that can grow in length.
+	 * It responds to direction changes and moves accordingly.
+	 */
 	class Snake : public BaseObject
 	{
 		public :
+			/**
+			 * @brief Constructs a Snake object starting at the specified coordinates
+			 * @callgraph
+			 * @param startX Starting X coordinate of the snake's head
+			 * @param startY Starting Y coordinate of the snake's head
+			 */
 			Snake(unsigned int startX, unsigned int startY);
 
+			/**
+			 * @enum Direction
+			 * @brief Possible movement directions for the snake
+			 *
+			 * @details
+			 * - Up: Move upwards
+			 * - Down: Move downwards
+			 * - Left: Move leftwards. Initial direction.
+			 * - Right: Move rightwards
+			 */
 			enum class Direction
 			{
 				Up,
@@ -303,28 +365,94 @@ namespace Snake
 				Right
 			};
 
+			/**
+			 * @brief Sets the snake's movement direction
+			 * @param direction New direction for the snake
+			 */
 			void setDirection(Direction direction);
 			Position getHeadPosition() const;
+
+			/**
+			 * @brief Determines the result of a collision with another object
+			 * @param other Reference to the other Snake::BaseObject involved in the collision
+			 * @return Snake::CollisionResult Result of the collision
+			 *
+			 * - If the other object's collision type is SOLID or SELF, returns Snake::CollisionResult::GAME_OVER.
+			 * - If the other object's collision type is TRIGGER, returns Snake::CollisionResult::POINTS.
+			 * - Otherwise, returns Snake::CollisionResult::NONE.
+			 */
 			CollisionResult getCollisionResult(BaseObject const &other) const override;
+
+			/**
+			 * @brief Sets the snake's direction to up
+			 */
 			void up();
+
+			/**
+			 * @brief Sets the snake's direction to down
+			 */
 			void down();
+
+			/**
+			 * @brief Sets the snake's direction to left
+			 */
 			void left();
+
+			/**
+			 * @brief Sets the snake's direction to right
+			 */
 			void right();
+
+			/**
+			 * @brief Grows the snake by one segment
+			 *
+			 * Adds a new segment at the tail in the direction opposite to the current movement.
+			 */
 			void grow();
 			void logCells() const;
 
 		protected:
+			/**
+			 * @brief Moves the snake according to its current direction
+			 * @callergraph
+			 *
+			 * Updates cell's positions starting from the head to the tail.
+			 * Also updates the glyphs for the head and tail based on movement direction.
+			 */
 			void move() override;
 
 		private:
+			/** @brief Length of the snake*/
 			unsigned int m_length = 5;
+
+			/** @brief Current movement direction */
 			Direction m_currentDirection = Direction::Left;
 	};
 
+	/**
+	 * @class Food
+	 * @brief Represents food items that the snake can eat.
+	 *
+	 * @details
+	 * The Food object is a trigger object that provides points when collided with.
+	 */
 	class Food : public BaseObject
 	{
 		public:
+			/** @brief Constructs a Food object at the specified coordinates
+			 * 	@param x X coordinate of the food
+			 *	@param y Y coordinate of the food
+			 */
 			Food(unsigned int x, unsigned int y);
+
+			/**
+			 * @brief Determines the result of a collision with another object
+			 * @param other Reference to the other Snake::BaseObject involved in the collision
+			 * @return Snake::CollisionResult Result of the collision
+			 *
+			 * - If typeid(other) is Snake::Snake, returns Snake::CollisionResult::POINTS.
+			 * - Otherwise, returns Snake::CollisionResult::NONE.
+			 */
 			CollisionResult getCollisionResult(BaseObject const &other) const override;
 	};
 };

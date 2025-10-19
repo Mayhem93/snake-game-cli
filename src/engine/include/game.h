@@ -115,6 +115,7 @@ namespace Snake
 
 			/**
 			 * @brief Updates game state for the current frame
+			 * @callgraph
 			 *
 			 * Updates game objects based on input
 			 */
