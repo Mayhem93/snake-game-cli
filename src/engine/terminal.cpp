@@ -63,7 +63,6 @@ namespace Snake
 		std::cout << TSEQ::ALTERNATE_SCREEN;
 		std::cout.flush();
 
-		// Test 2: Disable scrolling explicitly (additional sequence)
 		std::cout << "\x1b[?7l"; // Disable line wrapping
 		std::cout.flush();
 
