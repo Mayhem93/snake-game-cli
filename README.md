@@ -4,6 +4,10 @@
 
 This project was done for my own pleasure and education as I have not coded in a language like C++ since college. This was made with the help of AI (Copilot with Claude Sonnet)
 
+## Documentation
+
+[Doxygen documentation](https://mayhem93.github.io/snake-game-cli/)
+
 ## Prerequisites
 
 * cmake 3.xx
