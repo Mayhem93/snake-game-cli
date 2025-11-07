@@ -11,7 +11,8 @@ This project was done for my own pleasure and education as I have not coded in a
 ## Prerequisites
 
 * cmake 3.xx
-* gcc v13 (if using an older compiler version we might have some issues and I had to upgrade to use some c++ new features)
+* **Linux**: gcc v13 (if using an older compiler version we might have some issues and I had to upgrade to use some c++ new features)
+* **Windows**: I had compiled this using msvs 2022 (not guaranteed to work, since I haven't tested it on a long time) 
 * vcpkg installed in homedir (if somewhere else, you need to modify `CMakePresets.json`)
 
 ## Building
@@ -23,3 +24,6 @@ This project was done for my own pleasure and education as I have not coded in a
 
 * `./build/linux-make-x64/snake`
 
+## Issues
+
+* In windows using powershell + windoes terminal even if it "works" there are some issues with rendering
